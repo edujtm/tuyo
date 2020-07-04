@@ -12,14 +12,14 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="me.edujtm.tuyo.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
+        android:id="@+id/navigation_liked_videos"
+        android:name="me.edujtm.tuyo.ui.likedvideos.LikedVideosFragment"
+        android:label="@string/title_liked_videos"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="me.edujtm.tuyo.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
+        android:id="@+id/navigation_search"
+        android:name="me.edujtm.tuyo.ui.notifications.SearchFragment"
+        android:label="@string/title_search"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

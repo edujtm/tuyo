@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         appBarConfiguration = AppBarConfiguration(setOf(
-            R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications),
+            R.id.navigation_home, R.id.navigation_liked_videos, R.id.navigation_search),
             drawerLayout)
 
         val navController = findNavController(R.id.nav_host_fragment)
