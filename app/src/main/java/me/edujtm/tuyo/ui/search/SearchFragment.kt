@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.ui.notifications
+package me.edujtm.tuyo.ui.search
 
 import android.os.Bundle
 import android.view.LayoutInflater

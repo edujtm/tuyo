@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="me.edujtm.tuyo.ui.notifications.SearchFragment"
+        android:name="me.edujtm.tuyo.ui.search.SearchFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
