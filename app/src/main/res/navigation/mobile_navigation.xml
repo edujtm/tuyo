@@ -15,13 +15,13 @@
         android:id="@+id/navigation_liked_videos"
         android:name="me.edujtm.tuyo.ui.likedvideos.LikedVideosFragment"
         android:label="@string/title_liked_videos"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_liked_videos" />
 
     <fragment
         android:id="@+id/navigation_search"
         android:name="me.edujtm.tuyo.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_search" />
     <fragment
         android:id="@+id/navigation_login"
         android:name="me.edujtm.tuyo.ui.login.LoginFragment"

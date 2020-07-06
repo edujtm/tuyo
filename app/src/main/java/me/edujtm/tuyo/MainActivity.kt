@@ -1,8 +1,8 @@
 package me.edujtm.tuyo
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
+import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,6 +15,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.app_bar_main.*
+import me.edujtm.tuyo.auth.AuthState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
@@ -48,20 +50,20 @@ class MainActivity : AppCompatActivity() {
         ), drawer)
 
         val navController = findNavController(R.id.nav_host_fragment)
-
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.navigation_login -> {
-                    supportActionBar?.hide()
-                    setDrawerEnabled(false)
-                }
-                else -> {
-                    supportActionBar?.show()
-                    setDrawerEnabled(true)
-                }
+                R.id.navigation_login -> hideOverlay()
+                else -> showOverlay()
             }
         }
 
+        // Common logic to all fragments, if for some reason the user goes offline
+        // navigate to the login fragment.
+        mainViewModel.authState.observe(this, Observer { authState ->
+            when (authState) {
+                 is AuthState.Unauthenticated -> navController.navigate(R.id.navigation_login)
+            }
+        })
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
@@ -75,6 +77,18 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    private fun hideOverlay() {
+        fab.visibility = View.GONE
+        supportActionBar?.hide()
+        setDrawerEnabled(false)
+    }
+
+    private fun showOverlay() {
+        fab.visibility = View.VISIBLE
+        supportActionBar?.show()
+        setDrawerEnabled(true)
     }
 
     private fun setDrawerEnabled(enabled: Boolean) {

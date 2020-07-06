@@ -20,7 +20,7 @@ class LikedVideosFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
 
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        val root = inflater.inflate(R.layout.fragment_liked_videos, container, false)
         val textView: TextView = root.findViewById(R.id.text_dashboard)
         likedVideosViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
