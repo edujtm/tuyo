@@ -22,4 +22,10 @@
         android:name="me.edujtm.tuyo.ui.search.SearchFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="me.edujtm.tuyo.ui.login.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login" />
+
 </navigation>

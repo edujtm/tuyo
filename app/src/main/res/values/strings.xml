@@ -1,4 +1,5 @@
 <resources>
+    <!-- Common -->
     <string name="app_name">Tuyo</string>
     <string name="title_home">Home</string>
     <string name="title_liked_videos">Liked Videos</string>
@@ -7,4 +8,10 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Login Screen -->
+    <string name="login_button">Login</string>
+    <string name="login_title">Tuyo</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
