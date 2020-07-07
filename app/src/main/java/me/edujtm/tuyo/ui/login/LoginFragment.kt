@@ -8,13 +8,15 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
+import me.edujtm.tuyo.MainActivity
 import kotlinx.android.synthetic.main.fragment_login.login_btn as loginBtn
-import kotlinx.android.synthetic.main.fragment_login.name_et as nameInput
-import kotlinx.android.synthetic.main.fragment_login.password_et as passwordInput
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.auth.AuthState
+import me.edujtm.tuyo.common.observe
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class LoginFragment : Fragment() {
@@ -38,6 +40,11 @@ class LoginFragment : Fragment() {
             requireActivity().finish()
         }
 
+        // I followed this pattern from the Google documentation on conditional navigation
+        // but I'm afraid that showing a Snackbar from LiveData might cause it to reappear
+        // on resubscription.
+        // I believe it wont happen because the login screen is never supposed to be on the
+        // background of the backstack, but I'm not sure.
         mainViewModel.authState.observe(viewLifecycleOwner, Observer { authState ->
             when (authState) {
                 is AuthState.InvalidAuthentication -> view.showMessage(authState.error.message)
@@ -45,10 +52,41 @@ class LoginFragment : Fragment() {
             }
         })
 
+        mainViewModel.events.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                is MainViewModel.Event.GoogleApiServicesResult -> {
+                    handleGooglePlayServicesResult(view, event.resultCode)
+                }
+            }
+        }
+
         loginBtn.setOnClickListener {
-            val name = nameInput.text.toString()
-            val password = passwordInput.text.toString()
-            mainViewModel.authenticate(name, password)
+            mainViewModel.signIn()
+        }
+
+        mainViewModel.checkGoogleApiServices()
+    }
+
+    private fun handleGooglePlayServicesResult(view: View, resultCode: Int) {
+        val api = GoogleApiAvailability.getInstance()
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (api.isUserResolvableError(resultCode)) {
+
+                val dialog = api.getErrorDialog(
+                    requireActivity(),
+                    resultCode,
+                    MainActivity.REQUEST_PLAY_SERVICES)
+
+                dialog.setOnCancelListener {
+                    requireActivity().finish()
+                }
+                dialog.show()
+            }
+        } else {
+            Snackbar
+                .make(view, R.string.google_play_services_not_available, Snackbar.LENGTH_SHORT)
+                .show()
+            requireActivity().finish()
         }
     }
 

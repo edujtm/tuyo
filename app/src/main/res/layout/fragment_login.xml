@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/login_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#e52d27"
     tools:context=".ui.login.LoginFragment">
 
@@ -23,51 +24,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         />
 
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/name_til"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/password_til"
-        app:layout_constraintLeft_toLeftOf="parent"
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/name_et"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Name"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/password_til"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/login_btn"
-        app:layout_constraintLeft_toLeftOf="parent"
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password_et"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Password"
-            android:inputType="textPassword"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/login_btn"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/login_button"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="36dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
