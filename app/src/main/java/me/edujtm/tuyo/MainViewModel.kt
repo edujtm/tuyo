@@ -17,9 +17,6 @@ class MainViewModel(val authManager: Auth) : ViewModel() {
     private val mutAuthState = MutableLiveData<AuthState<GoogleAccount>>(AuthState.Unauthenticated)
     val authState : LiveData<AuthState<GoogleAccount>> = mutAuthState
 
-    private val mutGooglePlayState = MutableLiveData<Int>()
-    private val googlePlayState : LiveData<Int> = mutGooglePlayState
-
     private val eventEmitter = EventEmitter<Event>()
     val events: EventSource<Event> = eventEmitter
 

@@ -1,6 +1,7 @@
 package me.edujtm.tuyo.ui.login
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
 import me.edujtm.tuyo.MainActivity
 import kotlinx.android.synthetic.main.fragment_login.login_btn as loginBtn
@@ -28,7 +30,10 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+        val root = inflater.inflate(R.layout.fragment_login, container, false)
+        val loginBtn = root.findViewById<SignInButton>(R.id.login_btn)
+        loginBtn.setSize(SignInButton.SIZE_WIDE)
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

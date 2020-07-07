@@ -56,9 +56,7 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-
         drawer = findViewById(R.id.drawer_layout)
-        // drawer.findViewById<>()
 
         // --- navigation setup ---
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
@@ -81,11 +79,18 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         // --- listeners ---
-        // Common logic to all fragments, if for some reason the user goes offline
+        // Common logic to all fragments, if for some reason the user is not authenticated
         // navigate to the login fragment.
         mainViewModel.authState.observe(this, Observer { authState ->
             when (authState) {
-                 is AuthState.Unauthenticated -> navController.navigate(R.id.navigation_login)
+                 is AuthState.Unauthenticated -> {
+                     if (navController.currentDestination?.id != R.id.navigation_login) {
+                         navController.navigate(R.id.navigation_login)
+                     }
+                 }
+                is AuthState.Authenticated -> {
+                    setupNavigationHeader(authState.account)
+                }
             }
         })
 
@@ -96,9 +101,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 is MainViewModel.Event.CheckGooglePlayServices -> {
                     checkGooglePlayAvailability()
-                }
-                is MainViewModel.Event.SignInSuccess -> {
-                    setupNavigationHeader(event.account)
                 }
             }
         }

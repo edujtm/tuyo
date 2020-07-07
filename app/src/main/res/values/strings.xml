@@ -13,5 +13,7 @@
     <!-- Login Screen -->
     <string name="login_button">Login</string>
     <string name="login_title">Tuyo</string>
+    <string name="login_subtitle">A playlist manager for Youtube</string>
     <string name="action_logout">Logout</string>
+
 </resources>
