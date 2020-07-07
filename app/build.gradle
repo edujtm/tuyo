@@ -13,7 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "me.edujtm.tuyo.TestAppRunner"
     }
 
     buildTypes {
@@ -38,6 +38,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appcompat_version"
 
     implementation "com.google.android.material:material:$material_version"
+    implementation "com.google.android.gms:play-services-auth:$playservices_version"
 
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "androidx.navigation:navigation-fragment:$navigation_version"
@@ -46,13 +47,26 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
+
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
+    implementation "de.hdodenhof:circleimageview:$circleview_version"
+    implementation "com.github.Zhuinden:event-emitter:$eventemitter_version"
     implementation "org.koin:koin-core:$koin_version"
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     testImplementation "org.koin:koin-test:$koin_version"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation "io.mockk:mockk:$mockk_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockk_version"
 
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test:runner:$testrunner_version"
+    androidTestImplementation "androidx.test:rules:$testrunner_version"
+    androidTestImplementation "androidx.navigation:navigation-testing:$navigation_version"
+
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
 }
