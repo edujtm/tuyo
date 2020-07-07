@@ -49,6 +49,7 @@ class MainViewModel(val authManager: Auth) : ViewModel() {
             val account = authManager.getUserAccount()
             // Will never be null since the user just logged in
             mutAuthState.value = AuthState.Authenticated(account!!)
+            eventEmitter.emit(Event.SignInSuccess(account))
         } catch (e: ApiException) {
             mutAuthState.value = AuthState.InvalidAuthentication(e)
         }
@@ -71,6 +72,7 @@ class MainViewModel(val authManager: Auth) : ViewModel() {
 
     sealed class Event {
         data class SignIn(val signInIntent: Intent) : Event()
+        data class SignInSuccess(val account: GoogleAccount) : Event()
         object CheckGooglePlayServices : Event()
         data class GoogleApiServicesResult(val resultCode: Int) : Event()
     }

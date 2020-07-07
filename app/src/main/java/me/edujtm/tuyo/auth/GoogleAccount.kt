@@ -9,5 +9,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 data class GoogleAccount(
     val id: String,
     val email: String,
+    val displayName: String,
     val photoUrl: String?
 )

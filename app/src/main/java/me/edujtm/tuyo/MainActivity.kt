@@ -3,9 +3,12 @@ package me.edujtm.tuyo
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -16,12 +19,15 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.bumptech.glide.Glide
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.app_bar_main.*
 import me.edujtm.tuyo.auth.AuthState
+import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.observe
 import me.edujtm.tuyo.ui.login.LoginFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -50,8 +56,11 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        // --- navigation setup ---
+
         drawer = findViewById(R.id.drawer_layout)
+        // drawer.findViewById<>()
+
+        // --- navigation setup ---
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home,
@@ -87,6 +96,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 is MainViewModel.Event.CheckGooglePlayServices -> {
                     checkGooglePlayAvailability()
+                }
+                is MainViewModel.Event.SignInSuccess -> {
+                    setupNavigationHeader(event.account)
                 }
             }
         }
@@ -125,6 +137,22 @@ class MainActivity : AppCompatActivity() {
         val api = GoogleApiAvailability.getInstance()
         val resultCode = api.isGooglePlayServicesAvailable(this)
         mainViewModel.setGoogleApiResult(resultCode)
+    }
+
+    private fun setupNavigationHeader(account: GoogleAccount) {
+        val navigationView = drawer.findViewById<NavigationView>(R.id.nav_view)
+        val header = navigationView.getHeaderView(0)
+
+        val userImageView = header.findViewById<ImageView>(R.id.drawer_user_image_iv)
+        val usernameView = header.findViewById<TextView>(R.id.drawer_user_name_tv)
+        val emailView = header.findViewById<TextView>(R.id.drawer_user_email_tv)
+
+        emailView.text = account.email
+        usernameView.text = account.displayName
+        Glide.with(this)
+            .load(account.photoUrl)
+            .placeholder(R.mipmap.ic_launcher_round)
+            .into(userImageView)
     }
 
     private fun hideOverlay() {

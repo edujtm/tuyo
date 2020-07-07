@@ -19,9 +19,10 @@ class AuthManager(context: Context) : Auth {
     override fun getUserAccount(): GoogleAccount? {
         val account = getAccount()
 
-        // id and email will not be null due to DEFAULT_SIGN_IN and requestEmail() being setup
+        // id and email will not be null due to GoogleSignInOptions.DEFAULT_SIGN_IN
+        // and requestEmail() being setup
         return account?.let {
-            GoogleAccount(it.id!!, it.email!!, it.photoUrl?.toString())
+            GoogleAccount(it.id!!, it.email!!, it.displayName!!, it.photoUrl?.toString())
         }
     }
 

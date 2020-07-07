@@ -48,7 +48,10 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
 
-    implementation 'com.github.Zhuinden:event-emitter:1.1.0'
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
+    implementation "de.hdodenhof:circleimageview:$circleview_version"
+    implementation "com.github.Zhuinden:event-emitter:$eventemitter_version"
     implementation "org.koin:koin-core:$koin_version"
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
