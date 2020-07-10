@@ -1,5 +1,6 @@
 package me.edujtm.tuyo.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.fragment_login.login_btn as loginBtn
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.auth.AuthState
+import me.edujtm.tuyo.common.GoogleApi
 import me.edujtm.tuyo.common.observe
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -57,41 +59,8 @@ class LoginFragment : Fragment() {
             }
         })
 
-        mainViewModel.events.observe(viewLifecycleOwner) { event ->
-            when (event) {
-                is MainViewModel.Event.GoogleApiServicesResult -> {
-                    handleGooglePlayServicesResult(view, event.resultCode)
-                }
-            }
-        }
-
         loginBtn.setOnClickListener {
             mainViewModel.signIn()
-        }
-
-        mainViewModel.checkGoogleApiServices()
-    }
-
-    private fun handleGooglePlayServicesResult(view: View, resultCode: Int) {
-        val api = GoogleApiAvailability.getInstance()
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (api.isUserResolvableError(resultCode)) {
-
-                val dialog = api.getErrorDialog(
-                    requireActivity(),
-                    resultCode,
-                    MainActivity.REQUEST_PLAY_SERVICES)
-
-                dialog.setOnCancelListener {
-                    requireActivity().finish()
-                }
-                dialog.show()
-            }
-        } else {
-            Snackbar
-                .make(view, R.string.google_play_services_not_available, Snackbar.LENGTH_SHORT)
-                .show()
-            requireActivity().finish()
         }
     }
 

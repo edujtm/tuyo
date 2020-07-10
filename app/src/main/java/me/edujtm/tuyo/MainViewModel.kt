@@ -3,8 +3,10 @@ package me.edujtm.tuyo
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.ApiException
 import com.zhuinden.eventemitter.EventEmitter
 import com.zhuinden.eventemitter.EventSource
@@ -16,6 +18,14 @@ class MainViewModel(val authManager: Auth) : ViewModel() {
 
     private val mutAuthState = MutableLiveData<AuthState<GoogleAccount>>(AuthState.Unauthenticated)
     val authState : LiveData<AuthState<GoogleAccount>> = mutAuthState
+
+    private val mutGoogleApiState = MutableLiveData<Int>().apply {
+        value = ConnectionResult.SUCCESS
+    }
+    val isGoogleApiAvailable: LiveData<Boolean> = Transformations
+        .map(mutGoogleApiState) { resultCode ->
+            resultCode == ConnectionResult.SUCCESS
+        }
 
     private val eventEmitter = EventEmitter<Event>()
     val events: EventSource<Event> = eventEmitter
@@ -63,8 +73,7 @@ class MainViewModel(val authManager: Auth) : ViewModel() {
     }
 
     fun setGoogleApiResult(resultCode: Int) {
-        val resultEvent = Event.GoogleApiServicesResult(resultCode)
-        eventEmitter.emit(resultEvent)
+        mutGoogleApiState.value = resultCode
     }
 
     sealed class Event {

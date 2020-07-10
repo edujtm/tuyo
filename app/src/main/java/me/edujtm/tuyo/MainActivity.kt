@@ -1,7 +1,10 @@
 package me.edujtm.tuyo
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -12,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
@@ -28,8 +32,8 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.app_bar_main.*
 import me.edujtm.tuyo.auth.AuthState
 import me.edujtm.tuyo.auth.GoogleAccount
+import me.edujtm.tuyo.common.GoogleApi
 import me.edujtm.tuyo.common.observe
-import me.edujtm.tuyo.ui.login.LoginFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
@@ -52,11 +56,13 @@ class MainActivity : AppCompatActivity() {
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //.setAction("Action", null).show()
+            showGoogleErrorDialog(ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
         }
 
         drawer = findViewById(R.id.drawer_layout)
+        val layout = findViewById<CoordinatorLayout>(R.id.main_layout)
 
         // --- navigation setup ---
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
@@ -99,19 +105,23 @@ class MainActivity : AppCompatActivity() {
                 is MainViewModel.Event.SignIn -> {
                     startActivityForResult(event.signInIntent, REQUEST_SIGN_IN)
                 }
+                // Allows fragments to query for google APIs' status
                 is MainViewModel.Event.CheckGooglePlayServices -> {
-                    checkGooglePlayAvailability()
+                    checkGoogleApiAvailability()
                 }
             }
         }
+
+
+        checkGoogleApiAvailability()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SIGN_IN) {
             mainViewModel.authenticate(data)
-        } else if (requestCode == REQUEST_PLAY_SERVICES) {
-            mainViewModel.checkGoogleApiServices()
+        } else if (requestCode == REQUEST_API_SERVICES) {
+            checkGoogleApiAvailability()
         }
     }
 
@@ -135,10 +145,19 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    private fun checkGooglePlayAvailability() {
+    private fun checkGoogleApiAvailability() {
+        val resultCode = GoogleApi.getResultCode(this)
+        val result = GoogleApi.checkResultCode(resultCode)
+        when (result) {
+            is GoogleApi.AcquireResult.UserResolvableError -> showGoogleErrorDialog(resultCode)
+            else -> mainViewModel.setGoogleApiResult(resultCode)
+        }
+    }
+
+    private fun showGoogleErrorDialog(resultCode: Int) {
         val api = GoogleApiAvailability.getInstance()
-        val resultCode = api.isGooglePlayServicesAvailable(this)
-        mainViewModel.setGoogleApiResult(resultCode)
+        val dialog = api.getErrorDialog(this, resultCode, REQUEST_API_SERVICES)
+        dialog.show()
     }
 
     private fun setupNavigationHeader(account: GoogleAccount) {
@@ -181,6 +200,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_SIGN_IN = 1000
-        const val REQUEST_PLAY_SERVICES = 2000
+        const val REQUEST_API_SERVICES = 2000
     }
 }
