@@ -9,9 +9,10 @@ import com.google.api.services.youtube.YouTubeScopes
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.auth.Auth
 import me.edujtm.tuyo.auth.AuthManager
-import me.edujtm.tuyo.auth.GoogleAccount
-import me.edujtm.tuyo.repository.http.VideoRepository
-import me.edujtm.tuyo.repository.http.YoutubeVideoRepository
+import me.edujtm.tuyo.repository.http.PlaylistHttpApi
+import me.edujtm.tuyo.repository.http.VideoHttpApi
+import me.edujtm.tuyo.repository.http.YoutubePlaylistApi
+import me.edujtm.tuyo.repository.http.YoutubeVideoHttpApi
 import me.edujtm.tuyo.ui.likedvideos.LikedVideosViewModel
 import me.edujtm.tuyo.ui.home.HomeViewModel
 import me.edujtm.tuyo.ui.search.SearchViewModel
@@ -26,8 +27,12 @@ val androidModule = module {
         AuthManager(context = androidContext())
     }
 
-    single<VideoRepository> {
-        YoutubeVideoRepository()
+    single<VideoHttpApi> {
+        YoutubeVideoHttpApi()
+    }
+
+    single<PlaylistHttpApi> {
+        YoutubePlaylistApi()
     }
 
     factory {
@@ -53,7 +58,7 @@ val androidModule = module {
     }
 
     viewModel {
-        LikedVideosViewModel(videoRepository = get())
+        LikedVideosViewModel(playlistApi = get())
     }
 
     viewModel {

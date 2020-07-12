@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 
 
-class YoutubeVideoRepository : VideoRepository, KoinComponent  {
+class YoutubeVideoHttpApi : VideoHttpApi, KoinComponent  {
 
     /**
      * Made this because the user email necessary for the YouTube class

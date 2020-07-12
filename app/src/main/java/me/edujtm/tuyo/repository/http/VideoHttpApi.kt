@@ -1,5 +1,5 @@
 package me.edujtm.tuyo.repository.http
 
-interface VideoRepository {
+interface VideoHttpApi {
     suspend fun getVideoInfo(): RequestState<List<String>>
 }
