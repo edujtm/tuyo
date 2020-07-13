@@ -13,8 +13,10 @@ import com.zhuinden.eventemitter.EventSource
 import me.edujtm.tuyo.auth.Auth
 import me.edujtm.tuyo.auth.AuthState
 import me.edujtm.tuyo.auth.GoogleAccount
+import javax.inject.Inject
 
-class MainViewModel(val authManager: Auth) : ViewModel() {
+class MainViewModel
+    @Inject constructor(val authManager: Auth) : ViewModel() {
 
     private val mutAuthState = MutableLiveData<AuthState<GoogleAccount>>(AuthState.Unauthenticated)
     val authState : LiveData<AuthState<GoogleAccount>> = mutAuthState

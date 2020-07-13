@@ -1,8 +1,6 @@
 package me.edujtm.tuyo.ui.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,22 +8,21 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
-import me.edujtm.tuyo.MainActivity
 import kotlinx.android.synthetic.main.fragment_login.login_btn as loginBtn
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.auth.AuthState
-import me.edujtm.tuyo.common.GoogleApi
-import me.edujtm.tuyo.common.observe
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import me.edujtm.tuyo.common.activityViewModel
+import me.edujtm.tuyo.common.injector
 
 class LoginFragment : Fragment() {
 
-    private val mainViewModel: MainViewModel by sharedViewModel()
+    private val mainViewModel: MainViewModel by activityViewModel {
+        requireActivity().injector.mainViewModel
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,

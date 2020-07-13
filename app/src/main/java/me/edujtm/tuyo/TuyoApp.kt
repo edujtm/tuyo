@@ -1,24 +1,13 @@
 package me.edujtm.tuyo
 
 import android.app.Application
-import me.edujtm.tuyo.di.androidModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
+import me.edujtm.tuyo.di.components.ComponentProvider
+import me.edujtm.tuyo.di.components.DaggerAppComponent
 
-class TuyoApp : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            androidContext(this@TuyoApp)
-            modules(androidModule)
-        }
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        stopKoin()
+class TuyoApp : Application(), ComponentProvider {
+    override val component by lazy {
+        DaggerAppComponent
+            .factory()
+            .create(applicationContext = this)
     }
 }

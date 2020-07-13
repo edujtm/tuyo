@@ -15,17 +15,23 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
+import me.edujtm.tuyo.common.activityViewModel
+import me.edujtm.tuyo.common.injector
+import me.edujtm.tuyo.common.viewModel
 import me.edujtm.tuyo.data.PlaylistItem
 import me.edujtm.tuyo.repository.http.RequestState
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 // TODO: refactor this class so that it represents all playlists (not only liked videos)
 class LikedVideosFragment : Fragment() {
 
-    private val mainViewModel: MainViewModel by sharedViewModel()
-    private val likedVideosViewModel: LikedVideosViewModel by viewModel()
+    private val mainViewModel: MainViewModel by activityViewModel {
+            requireActivity().injector.mainViewModel
+    }
+    private val likedVideosViewModel: LikedVideosViewModel by viewModel {
+            requireActivity().injector.likedVideosViewModel
+    }
+
     private lateinit var textView: TextView
     private lateinit var playlistView: RecyclerView
     private lateinit var playlistItems: MutableList<PlaylistItem>

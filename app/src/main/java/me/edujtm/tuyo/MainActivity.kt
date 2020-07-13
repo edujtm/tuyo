@@ -1,12 +1,7 @@
 package me.edujtm.tuyo
 
-import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkRequest
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -28,18 +23,18 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.app_bar_main.*
 import me.edujtm.tuyo.auth.AuthState
 import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.GoogleApi
+import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.observe
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import me.edujtm.tuyo.common.viewModel
 import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
 class MainActivity : AppCompatActivity() {
 
-    private val mainViewModel : MainViewModel by viewModel()
+    private val mainViewModel : MainViewModel by viewModel { injector.mainViewModel }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawer: DrawerLayout

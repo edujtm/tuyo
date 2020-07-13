@@ -8,11 +8,14 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import me.edujtm.tuyo.R
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import me.edujtm.tuyo.common.injector
+import me.edujtm.tuyo.common.viewModel
 
 class SearchFragment : Fragment() {
 
-    private val searchViewModel: SearchViewModel by viewModel()
+    private val searchViewModel: SearchViewModel by viewModel {
+        requireActivity().injector.searchViewModel
+    }
 
     override fun onCreateView(
             inflater: LayoutInflater,

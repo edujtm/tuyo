@@ -1,12 +1,16 @@
 package me.edujtm.tuyo.repository.http
 
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.core.KoinComponent
+import me.edujtm.tuyo.auth.CredentialFactory
+import javax.inject.Inject
 
 
-class YoutubeVideoHttpApi : VideoHttpApi, KoinComponent  {
+class YoutubeVideoHttpApi
+    @Inject constructor(val credentials: CredentialFactory) : VideoHttpApi {
 
     /**
      * Made this because the user email necessary for the YouTube class
@@ -15,7 +19,14 @@ class YoutubeVideoHttpApi : VideoHttpApi, KoinComponent  {
      * before that.
      */
     private val youtube: YouTube
-        get() = getKoin().get()
+        get() {
+            val credential = credentials.currentUser()
+            val transport = AndroidHttp.newCompatibleTransport()
+            val jsonFactory = JacksonFactory.getDefaultInstance()
+
+            return YouTube.Builder(transport, jsonFactory, credential)
+                .build()
+        }
 
     override suspend fun getVideoInfo(): RequestState<List<String>> = withContext(Dispatchers.IO) {
         val channelInfo = arrayListOf<String>()

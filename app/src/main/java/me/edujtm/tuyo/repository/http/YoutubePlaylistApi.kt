@@ -1,15 +1,26 @@
 package me.edujtm.tuyo.repository.http
 
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.edujtm.tuyo.auth.CredentialFactory
 import me.edujtm.tuyo.data.PlaylistItem
-import org.koin.core.KoinComponent
+import javax.inject.Inject
 
-class YoutubePlaylistApi : PlaylistHttpApi, KoinComponent {
+class YoutubePlaylistApi
+@Inject constructor(val credentials: CredentialFactory) : PlaylistHttpApi {
 
     private val youtube: YouTube
-        get() = getKoin().get()
+        get() {
+            val credential = credentials.currentUser()
+            val transport = AndroidHttp.newCompatibleTransport()
+            val jsonFactory = JacksonFactory.getDefaultInstance()
+
+            return YouTube.Builder(transport, jsonFactory, credential)
+                .build()
+        }
 
     override suspend fun getLikedVideos(): RequestState<List<PlaylistItem>> = withContext(Dispatchers.IO) {
         return@withContext try {

@@ -5,8 +5,14 @@ import android.content.Intent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthManager(context: Context) : Auth {
+@Singleton
+class AuthManager
+    @Inject constructor(context: Context) : Auth {
+
+
     private val appContext = context.applicationContext
     private val googleSignInClient: GoogleSignInClient by lazy {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
