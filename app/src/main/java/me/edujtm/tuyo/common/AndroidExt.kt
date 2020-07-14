@@ -38,5 +38,6 @@ inline fun <reified T : ViewModel> Fragment.activityViewModel(
         }
 }
 
+/** Allows the application to expose the dagger component to activities */
 val Activity.injector
         get() = (application as ComponentProvider).component

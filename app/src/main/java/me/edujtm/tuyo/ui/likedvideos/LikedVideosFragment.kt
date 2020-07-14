@@ -19,7 +19,7 @@ import me.edujtm.tuyo.common.activityViewModel
 import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.viewModel
 import me.edujtm.tuyo.data.PlaylistItem
-import me.edujtm.tuyo.repository.http.RequestState
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 
 // TODO: refactor this class so that it represents all playlists (not only liked videos)

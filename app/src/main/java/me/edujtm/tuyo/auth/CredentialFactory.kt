@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Singleton
 class CredentialFactory
-@Inject constructor(val context: Context, val authManager: Auth) {
+@Inject constructor(val context: Context, val authManager: AuthManager) {
 
     private val SCOPES = listOf(YouTubeScopes.YOUTUBE_READONLY)
 

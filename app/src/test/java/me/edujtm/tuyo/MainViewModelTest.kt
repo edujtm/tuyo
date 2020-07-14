@@ -6,7 +6,7 @@ import androidx.lifecycle.Observer
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import me.edujtm.tuyo.auth.Auth
+import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.AuthState
 import me.edujtm.tuyo.auth.GoogleAccount
 import org.hamcrest.CoreMatchers.instanceOf
@@ -27,7 +27,7 @@ class MainViewModelTest {
     val account = GoogleAccount("123", "edujtm@test.com", "Eduardo",
         "photo")
 
-    private val authManager : Auth = mockk()
+    private val authManager : AuthManager = mockk()
     private val authStateObserver: Observer<AuthState<GoogleAccount>> = mockk(relaxed = true)
     private val eventObserver: EventObserver<MainViewModel.Event> = mockk(relaxed = true)
 
@@ -41,7 +41,7 @@ class MainViewModelTest {
 
     @Test
     fun `authentication state should start as Unauthenticated`() {
-        val mockManager = mockk<Auth>()
+        val mockManager = mockk<AuthManager>()
         every { mockManager.getUserAccount() } returns null
 
         val mainViewModel = MainViewModel(mockManager)
@@ -51,7 +51,7 @@ class MainViewModelTest {
 
     @Test
     fun `authentication state should start as Authenticated when there's already an user`() {
-        val mockManager = mockk<Auth>()
+        val mockManager = mockk<AuthManager>()
         every { mockManager.getUserAccount() } returns account
 
         val mainViewModel = MainViewModel(mockManager)

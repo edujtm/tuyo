@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.repository.http
+package me.edujtm.tuyo.domain.domainmodel
 
 sealed class RequestState<out T> {
     object Loading : RequestState<Nothing>()
@@ -7,7 +7,9 @@ sealed class RequestState<out T> {
         companion object {
             fun withMessage(message: String) : Failure {
                 val error = Throwable(message)
-                return Failure(error)
+                return Failure(
+                    error
+                )
             }
         }
     }

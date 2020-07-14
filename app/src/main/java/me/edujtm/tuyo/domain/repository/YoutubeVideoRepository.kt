@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.repository.http
+package me.edujtm.tuyo.domain.repository
 
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -6,11 +6,12 @@ import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.edujtm.tuyo.auth.CredentialFactory
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import javax.inject.Inject
 
 
-class YoutubeVideoHttpApi
-    @Inject constructor(val credentials: CredentialFactory) : VideoHttpApi {
+class YoutubeVideoRepository
+    @Inject constructor(val credentials: CredentialFactory) : VideoRepository {
 
     /**
      * Made this because the user email necessary for the YouTube class

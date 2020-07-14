@@ -8,12 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.edujtm.tuyo.data.PlaylistItem
-import me.edujtm.tuyo.repository.http.PlaylistHttpApi
-import me.edujtm.tuyo.repository.http.RequestState
-import me.edujtm.tuyo.repository.http.VideoHttpApi
+import me.edujtm.tuyo.domain.repository.PlaylistRepository
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import kotlin.coroutines.CoroutineContext
 
-class LikedVideosViewModel(val playlistApi: PlaylistHttpApi) : ViewModel(), CoroutineScope {
+class LikedVideosViewModel(val playlistApi: PlaylistRepository) : ViewModel(), CoroutineScope {
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
