@@ -21,9 +21,6 @@ object ViewModelModule {
     fun provideSearchViewModel(): SearchViewModel = SearchViewModel()
 
     @JvmStatic @Provides
-    fun provideHomeViewModel(): HomeViewModel = HomeViewModel()
-
-    @JvmStatic @Provides
     fun provideMainViewModel(authManager: AuthManager): MainViewModel
             = MainViewModel(authManager)
 }
