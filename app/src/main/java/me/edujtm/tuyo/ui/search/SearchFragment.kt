@@ -8,13 +8,14 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import me.edujtm.tuyo.R
+import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.viewModel
 
 class SearchFragment : Fragment() {
 
     private val searchViewModel: SearchViewModel by viewModel {
-        requireActivity().injector.searchViewModel
+        activityInjector.searchViewModel
     }
 
     override fun onCreateView(

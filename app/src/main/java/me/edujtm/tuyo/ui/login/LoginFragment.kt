@@ -14,15 +14,14 @@ import kotlinx.android.synthetic.main.fragment_login.login_btn as loginBtn
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.auth.AuthState
+import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.activityViewModel
-import me.edujtm.tuyo.common.injector
 
 class LoginFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by activityViewModel {
-        requireActivity().injector.mainViewModel
+        activityInjector.mainViewModel
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
