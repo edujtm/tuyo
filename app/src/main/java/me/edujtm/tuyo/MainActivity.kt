@@ -4,17 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -25,12 +21,10 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.app_bar_main.*
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.*
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
-import me.edujtm.tuyo.di.components.ComponentProvider
 import me.edujtm.tuyo.di.components.MainActivityComponent
 import me.edujtm.tuyo.ui.login.LoginActivity
 import javax.inject.Inject
@@ -38,32 +32,26 @@ import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
 class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
-    private lateinit var mainViewModel : MainViewModel
-
     @Inject lateinit var authManager: AuthManager
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
 
-    // TODO: Change this to an approach using field injection
     override val activityInjector: MainActivityComponent by lazy {
         injector.mainActivityInjector
             .create(intent.getStringExtra(USER_EMAIL)!!)
     }
+
+    private val mainViewModel : MainViewModel by viewModel { activityInjector.mainViewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         activityInjector.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // --- Dagger setup ---
-
-        mainViewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T = activityInjector.mainViewModel as T
-        }).get(MainViewModel::class.java)
-
         // --- UI setup ---
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -81,6 +69,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         }
 
         // --- navigation setup ---
+
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home,
@@ -89,19 +78,10 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         ), drawer)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.navigation_login -> hideOverlay()
-                else -> showOverlay()
-            }
-        }
-
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         // --- listeners ---
-        // Common logic to all fragments, if for some reason the user is not authenticated
-        // navigate to the login fragment.
 
         mainViewModel.events.observe(this) { event ->
             when (event) {
@@ -111,7 +91,6 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
                 }
             }
         }
-
 
         checkGoogleApiAvailability()
     }
@@ -192,28 +171,6 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
             .load(account.photoUrl)
             .placeholder(R.mipmap.ic_launcher_round)
             .into(userImageView)
-    }
-
-    private fun hideOverlay() {
-        fab.visibility = View.GONE
-        supportActionBar?.hide()
-        setDrawerEnabled(false)
-    }
-
-    private fun showOverlay() {
-        fab.visibility = View.VISIBLE
-        supportActionBar?.show()
-        setDrawerEnabled(true)
-    }
-
-    private fun setDrawerEnabled(enabled: Boolean) {
-        val lockMode = if (enabled)
-            DrawerLayout.LOCK_MODE_UNLOCKED
-        else
-            DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-
-        drawer.setDrawerLockMode(lockMode)
-        toggle.isDrawerIndicatorEnabled = enabled
     }
 
     companion object {
