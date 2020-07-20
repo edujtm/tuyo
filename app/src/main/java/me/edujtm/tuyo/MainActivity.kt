@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var container : CoordinatorLayout
 
     override val activityInjector: MainActivityComponent by lazy {
         injector.mainActivityInjector
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         setSupportActionBar(toolbar)
 
         drawer = findViewById(R.id.drawer_layout)
-        val container = findViewById<CoordinatorLayout>(R.id.main_layout)
+        container = findViewById(R.id.main_layout)
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener {
@@ -137,7 +138,10 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         val result = GoogleApi.checkResultCode(resultCode)
         when (result) {
             is GoogleApi.AcquireResult.UserResolvableError -> showGoogleErrorDialog(resultCode)
-            else -> mainViewModel.setGoogleApiResult(resultCode)
+            is GoogleApi.AcquireResult.NotResolvableError -> {
+                Snackbar.make(container, "Google API services are not available", Snackbar.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
