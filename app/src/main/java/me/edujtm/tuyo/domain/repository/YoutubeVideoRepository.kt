@@ -1,33 +1,14 @@
 package me.edujtm.tuyo.domain.repository
 
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.edujtm.tuyo.auth.CredentialFactory
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import javax.inject.Inject
 
 
 class YoutubeVideoRepository
-    @Inject constructor(val credentials: CredentialFactory) : VideoRepository {
-
-    /**
-     * Made this because the user email necessary for the YouTube class
-     * has a different lifetime than the repository, so it cannot be constructor injected.
-     * The email is only available after the user logs in, but the repository might be created
-     * before that.
-     */
-    private val youtube: YouTube
-        get() {
-            val credential = credentials.currentUser()
-            val transport = AndroidHttp.newCompatibleTransport()
-            val jsonFactory = JacksonFactory.getDefaultInstance()
-
-            return YouTube.Builder(transport, jsonFactory, credential)
-                .build()
-        }
+    @Inject constructor(val youtube: YouTube) : VideoRepository {
 
     override suspend fun getVideoInfo(): RequestState<List<String>> = withContext(Dispatchers.IO) {
         val channelInfo = arrayListOf<String>()

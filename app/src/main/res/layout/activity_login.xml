@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/login_fragment_container"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_activity_cl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#e52d27"
-    tools:context=".ui.login.LoginFragment">
+    tools:context=".ui.login.LoginActivity">
 
     <ImageView
         android:layout_width="144dp"

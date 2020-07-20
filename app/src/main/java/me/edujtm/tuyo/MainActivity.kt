@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -12,94 +11,81 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
-import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import kotlinx.android.synthetic.main.app_bar_main.*
-import me.edujtm.tuyo.auth.AuthState
+import com.google.android.material.snackbar.Snackbar
+import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
-import me.edujtm.tuyo.common.GoogleApi
-import me.edujtm.tuyo.common.injector
-import me.edujtm.tuyo.common.observe
-import me.edujtm.tuyo.common.viewModel
+import me.edujtm.tuyo.common.*
+import me.edujtm.tuyo.di.components.ActivityComponentProvider
+import me.edujtm.tuyo.di.components.MainActivityComponent
+import me.edujtm.tuyo.ui.login.LoginActivity
+import javax.inject.Inject
 import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
-    private val mainViewModel : MainViewModel by viewModel { injector.mainViewModel }
+    @Inject lateinit var authManager: AuthManager
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawer: DrawerLayout
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var container : CoordinatorLayout
+
+    override val activityInjector: MainActivityComponent by lazy {
+        injector.mainActivityInjector
+            .create(intent.getStringExtra(USER_EMAIL)!!)
+    }
+
+    private val mainViewModel : MainViewModel by viewModel { activityInjector.mainViewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        activityInjector.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // --- UI setup ---
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        drawer = findViewById(R.id.drawer_layout)
+        container = findViewById(R.id.main_layout)
+
         val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { view ->
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //.setAction("Action", null).show()
-            showGoogleErrorDialog(ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
+        fab.setOnClickListener {
+            val email = intent?.getStringExtra(USER_EMAIL) ?: "No Email"
+            Snackbar.make(container, email, Snackbar.LENGTH_SHORT).show()
         }
 
-        drawer = findViewById(R.id.drawer_layout)
-        val layout = findViewById<CoordinatorLayout>(R.id.main_layout)
+        authManager.getUserAccount()?.let { account ->
+            setupNavigationHeader(account)
+        }
 
         // --- navigation setup ---
+
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home,
             R.id.navigation_liked_videos,
-            R.id.navigation_search,
-            R.id.navigation_login
+            R.id.navigation_search
         ), drawer)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.navigation_login -> hideOverlay()
-                else -> showOverlay()
-            }
-        }
-
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         // --- listeners ---
-        // Common logic to all fragments, if for some reason the user is not authenticated
-        // navigate to the login fragment.
-        mainViewModel.authState.observe(this, Observer { authState ->
-            when (authState) {
-                 is AuthState.Unauthenticated -> {
-                     if (navController.currentDestination?.id != R.id.navigation_login) {
-                         navController.navigate(R.id.navigation_login)
-                     }
-                 }
-                is AuthState.Authenticated -> {
-                    setupNavigationHeader(authState.account)
-                }
-            }
-        })
 
         mainViewModel.events.observe(this) { event ->
             when (event) {
-                is MainViewModel.Event.SignIn -> {
-                    startActivityForResult(event.signInIntent, REQUEST_SIGN_IN)
-                }
                 // Allows fragments to query for google APIs' status
                 is MainViewModel.Event.CheckGooglePlayServices -> {
                     checkGoogleApiAvailability()
@@ -107,15 +93,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         checkGoogleApiAvailability()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        verifyUserLoggedIn()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_SIGN_IN) {
-            mainViewModel.authenticate(data)
-        } else if (requestCode == REQUEST_API_SERVICES) {
+        if (requestCode == REQUEST_API_SERVICES) {
             checkGoogleApiAvailability()
         }
     }
@@ -128,7 +116,12 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_logout -> {
-                mainViewModel.signOut()
+                authManager.signOut {
+                    startActivity<LoginActivity> { intent ->
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                    finish()
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -145,7 +138,10 @@ class MainActivity : AppCompatActivity() {
         val result = GoogleApi.checkResultCode(resultCode)
         when (result) {
             is GoogleApi.AcquireResult.UserResolvableError -> showGoogleErrorDialog(resultCode)
-            else -> mainViewModel.setGoogleApiResult(resultCode)
+            is GoogleApi.AcquireResult.NotResolvableError -> {
+                Snackbar.make(container, "Google API services are not available", Snackbar.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
@@ -153,6 +149,16 @@ class MainActivity : AppCompatActivity() {
         val api = GoogleApiAvailability.getInstance()
         val dialog = api.getErrorDialog(this, resultCode, REQUEST_API_SERVICES)
         dialog.show()
+    }
+
+    private fun verifyUserLoggedIn() {
+        val account = authManager.getUserAccount()
+        if (account == null) {
+            startActivity<LoginActivity> { intent ->
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
+            finish()
+        }
     }
 
     private fun setupNavigationHeader(account: GoogleAccount) {
@@ -171,30 +177,8 @@ class MainActivity : AppCompatActivity() {
             .into(userImageView)
     }
 
-    private fun hideOverlay() {
-        fab.visibility = View.GONE
-        supportActionBar?.hide()
-        setDrawerEnabled(false)
-    }
-
-    private fun showOverlay() {
-        fab.visibility = View.VISIBLE
-        supportActionBar?.show()
-        setDrawerEnabled(true)
-    }
-
-    private fun setDrawerEnabled(enabled: Boolean) {
-        val lockMode = if (enabled)
-            DrawerLayout.LOCK_MODE_UNLOCKED
-        else
-            DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-
-        drawer.setDrawerLockMode(lockMode)
-        toggle.isDrawerIndicatorEnabled = enabled
-    }
-
     companion object {
-        const val REQUEST_SIGN_IN = 1000
+        const val USER_EMAIL = "user_email"
         const val REQUEST_API_SERVICES = 2000
     }
 }

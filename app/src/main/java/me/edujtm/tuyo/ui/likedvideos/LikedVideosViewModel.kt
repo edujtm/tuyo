@@ -10,9 +10,11 @@ import kotlinx.coroutines.launch
 import me.edujtm.tuyo.data.PlaylistItem
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import me.edujtm.tuyo.domain.domainmodel.RequestState
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class LikedVideosViewModel(val playlistApi: PlaylistRepository) : ViewModel(), CoroutineScope {
+class LikedVideosViewModel
+    @Inject constructor(val playlistApi: PlaylistRepository) : ViewModel(), CoroutineScope {
 
     private val job = Job()
     override val coroutineContext: CoroutineContext

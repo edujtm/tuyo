@@ -15,8 +15,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
+import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.activityViewModel
-import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.viewModel
 import me.edujtm.tuyo.data.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.RequestState
@@ -26,10 +26,10 @@ import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 class LikedVideosFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by activityViewModel {
-            requireActivity().injector.mainViewModel
+            activityInjector.mainViewModel
     }
     private val likedVideosViewModel: LikedVideosViewModel by viewModel {
-            requireActivity().injector.likedVideosViewModel
+            activityInjector.likedVideosViewModel
     }
 
     private lateinit var textView: TextView
