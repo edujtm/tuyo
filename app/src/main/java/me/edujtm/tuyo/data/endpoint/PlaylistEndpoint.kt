@@ -1,8 +1,7 @@
 package me.edujtm.tuyo.data.endpoint
 
-import me.edujtm.tuyo.data.PlaylistItem
-
+import com.google.api.services.youtube.model.PlaylistItemListResponse
 
 interface PlaylistEndpoint {
-    fun getPlaylistById(id: String) : List<PlaylistItem>
+    fun getPlaylistById(id: String) : PlaylistItemListResponse
 }

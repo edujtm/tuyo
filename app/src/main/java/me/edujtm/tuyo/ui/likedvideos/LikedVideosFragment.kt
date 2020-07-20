@@ -9,16 +9,20 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.activityViewModel
 import me.edujtm.tuyo.common.viewModel
-import me.edujtm.tuyo.data.PlaylistItem
+import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 
@@ -35,6 +39,7 @@ class LikedVideosFragment : Fragment() {
     private lateinit var textView: TextView
     private lateinit var playlistView: RecyclerView
     private lateinit var playlistItems: MutableList<PlaylistItem>
+    private val playlistAdapter = PlaylistAdapter()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -45,9 +50,11 @@ class LikedVideosFragment : Fragment() {
         textView = root.findViewById(R.id.text_dashboard)
         playlistItems = mutableListOf()
         playlistView = root.findViewById(R.id.liked_videos_rv)
+        val decoration = DividerItemDecoration(requireContext(),  DividerItemDecoration.VERTICAL)
         with(playlistView) {
             layoutManager = LinearLayoutManager(requireActivity())
-            adapter = PlaylistAdapter(playlistItems)
+            adapter = playlistAdapter
+            addItemDecoration(decoration)
         }
         return root
     }
@@ -55,6 +62,7 @@ class LikedVideosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        /*
         likedVideosViewModel.likedVideos.observe(viewLifecycleOwner, Observer { request ->
             when (request) {
                 is RequestState.Loading -> textView.text = "Loading request"
@@ -65,8 +73,13 @@ class LikedVideosFragment : Fragment() {
                 is RequestState.Failure -> handleYoutubeError(request.e)
             }
         })
+         */
 
-        likedVideosViewModel.getLikedVideos()
+        lifecycleScope.launch {
+            likedVideosViewModel.getLikedVideos().collectLatest {
+                playlistAdapter.submitData(it)
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

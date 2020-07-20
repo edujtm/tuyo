@@ -1,6 +1,11 @@
-package me.edujtm.tuyo.data
+package me.edujtm.tuyo.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "playlist_items")
 data class PlaylistItem(
+    @PrimaryKey
     val id: String,
     val channelId: String,
     val title: String,

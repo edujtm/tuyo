@@ -1,9 +1,12 @@
 package me.edujtm.tuyo.domain.repository
 
-import me.edujtm.tuyo.data.PlaylistItem
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import kotlinx.coroutines.flow.Flow
+import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 
 
 interface PlaylistRepository {
-    suspend fun getLikedVideos(): RequestState<List<PlaylistItem>>
+    fun getLikedVideos(): Flow<PagingData<PlaylistItem>>
 }

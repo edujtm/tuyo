@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.data
+package me.edujtm.tuyo.data.model
 
 typealias PlaylistId = String
 
