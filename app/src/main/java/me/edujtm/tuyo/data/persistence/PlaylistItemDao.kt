@@ -10,8 +10,8 @@ interface PlaylistItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(playlistItems: List<PlaylistItem>)
 
-    @Query("SELECT * FROM playlist_items WHERE id = :itemId")
-    fun playlistItemsById(itemId: String): PagingSource<String, PlaylistItem>
+    @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId")
+    fun playlistItemsById(playlistId: String): PagingSource<Int, PlaylistItem>
 
     @Delete
     suspend fun deletePlaylistItem(playlistItem: PlaylistItem)
