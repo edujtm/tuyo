@@ -11,10 +11,9 @@ import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
-import me.edujtm.tuyo.data.model.PrimaryPlaylists
+import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 import me.edujtm.tuyo.domain.paging.PlaylistRemoteMediator
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @ExperimentalPagingApi
@@ -42,19 +41,18 @@ class YoutubePlaylistRepository
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    override fun getPrimaryPlaylist(primaryPlaylists: Int) = flow {
+    override fun getPrimaryPlaylist(primaryPlaylist: PrimaryPlaylist) =
+        flow {
             val playlistIds = userEndpoint.getPrimaryPlaylistsIds()
             emit(playlistIds)
         }
         .flowOn(Dispatchers.IO)
         .flatMapConcat { playlistIds ->
-            val selectedPlaylist = when (primaryPlaylists) {
-                PrimaryPlaylists.LIKED_VIDEOS -> playlistIds.likedVideos
-                PrimaryPlaylists.FAVORITES -> playlistIds.favorites
-                PrimaryPlaylists.WATCH_HISTORY -> playlistIds.history
-                PrimaryPlaylists.WATCH_LATER -> playlistIds.watchLater
-                // Using enum will remove this
-                else -> throw IllegalStateException("Invalid ID for primary playlist")
+            val selectedPlaylist = when (primaryPlaylist) {
+                PrimaryPlaylist.LIKED_VIDEOS -> playlistIds.likedVideos
+                PrimaryPlaylist.FAVORITES -> playlistIds.favorites
+                PrimaryPlaylist.WATCH_HISTORY -> playlistIds.history
+                PrimaryPlaylist.WATCH_LATER -> playlistIds.watchLater
             }
 
             getPlaylist(selectedPlaylist)

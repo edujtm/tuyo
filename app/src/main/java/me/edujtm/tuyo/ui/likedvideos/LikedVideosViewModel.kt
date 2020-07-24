@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.cachedIn
 import kotlinx.coroutines.*
 import me.edujtm.tuyo.data.model.PlaylistItem
-import me.edujtm.tuyo.data.model.PrimaryPlaylists
+import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class LikedVideosViewModel
     val likedVideos : LiveData<RequestState<List<PlaylistItem>>> = mutVideoInfo
 
     @ExperimentalCoroutinesApi
-    fun getLikedVideos() = playlistRepository.getPrimaryPlaylist(PrimaryPlaylists.LIKED_VIDEOS)
+    fun getLikedVideos() = playlistRepository.getPrimaryPlaylist(PrimaryPlaylist.LIKED_VIDEOS)
         .cachedIn(this)
 
     override fun onCleared() {

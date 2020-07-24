@@ -44,7 +44,7 @@ class LikedVideosFragment : Fragment() {
 
     private lateinit var textView: TextView
     private lateinit var playlistView: RecyclerView
-    private val playlistAdapter = PlaylistAdapter()
+    private lateinit var playlistAdapter: PlaylistAdapter
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -61,18 +61,12 @@ class LikedVideosFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val decoration = DividerItemDecoration(requireContext(),  DividerItemDecoration.VERTICAL)
+        val hostActivity = requireActivity()
+        playlistAdapter = PlaylistAdapter(hostActivity)
         with(playlistView) {
-            layoutManager = LinearLayoutManager(requireActivity())
+            layoutManager = LinearLayoutManager(hostActivity)
             adapter = playlistAdapter
             addItemDecoration(decoration)
-        }
-
-        lifecycleScope.launch {
-            playlistAdapter.loadStateFlow
-                .filter { it.append is LoadState.Error }
-                .collectLatest {
-                    Log.d("LIKED_VIDEOS", "Error who dat?")
-                }
         }
 
         getLikedVideos()

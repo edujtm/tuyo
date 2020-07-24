@@ -11,7 +11,8 @@ data class PlaylistItem(
     val title: String,
     val description: String,
     val playlistId: String,
-    val videoId: String
+    val videoId: String,
+    val thumbnail: String?
 ) {
     companion object {
         // TODO: Maybe change this to a better abstraction
@@ -23,7 +24,8 @@ data class PlaylistItem(
                 snippet.title,
                 snippet.description,
                 snippet.playlistId,
-                json.contentDetails.videoId
+                json.contentDetails.videoId,
+                snippet.thumbnails?.default?.url
             )
         }
     }
