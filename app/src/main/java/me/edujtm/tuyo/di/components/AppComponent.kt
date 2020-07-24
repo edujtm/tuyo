@@ -6,6 +6,7 @@ import dagger.Component
 import me.edujtm.tuyo.MainActivity
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.di.modules.AuthModule
+import me.edujtm.tuyo.di.modules.PersistenceModule
 import me.edujtm.tuyo.di.modules.ViewModelModule
 import me.edujtm.tuyo.di.modules.YoutubeApiModule
 import me.edujtm.tuyo.ui.home.HomeViewModel
@@ -17,6 +18,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [
     AuthModule::class,
+    PersistenceModule::class,
     MainActivityComponent.InstallModule::class
 ])
 interface AppComponent {

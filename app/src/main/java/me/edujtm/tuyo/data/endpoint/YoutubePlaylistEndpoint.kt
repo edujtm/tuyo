@@ -1,17 +1,26 @@
 package me.edujtm.tuyo.data.endpoint
 
 import com.google.api.services.youtube.YouTube
-import me.edujtm.tuyo.data.PlaylistItem
+import com.google.api.services.youtube.model.PlaylistItemListResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import me.edujtm.tuyo.data.model.PlaylistItem
 import javax.inject.Inject
 
 class YoutubePlaylistEndpoint
     @Inject constructor(val youtube: YouTube) : PlaylistEndpoint {
 
-    override fun getPlaylistById(id: String): List<PlaylistItem> = youtube.playlistItems()
-        .list("snippet,contentDetails")
-        .apply {
-            maxResults = 25
-            playlistId = id
-        }.execute()
-        .items.map { PlaylistItem.fromJson(it) }
+    override suspend fun getPlaylistById(
+        id: String,
+        token: String?,
+        pageSize: Long
+    ): PlaylistItemListResponse = withContext(Dispatchers.IO) {
+        youtube.playlistItems()
+            .list("snippet,contentDetails")
+            .apply {
+                maxResults = pageSize
+                playlistId = id
+                pageToken = token
+            }.execute()
+    }
 }

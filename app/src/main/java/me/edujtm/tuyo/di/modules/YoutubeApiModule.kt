@@ -1,12 +1,14 @@
 package me.edujtm.tuyo.di.modules
 
 import android.content.Context
+import androidx.paging.ExperimentalPagingApi
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.YouTubeScopes
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
@@ -18,37 +20,54 @@ import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 
 @Module
-object YoutubeApiModule {
+abstract class YoutubeApiModule {
 
+    /*
+    @ExperimentalPagingApi
     @JvmStatic @Provides
     fun provideYoutubePlaylistRepository(
         playlistEndpoint: PlaylistEndpoint,
-        userEndpoint: UserEndpoint
+        userEndpoint: UserEndpoint,
+
     ): PlaylistRepository = YoutubePlaylistRepository(playlistEndpoint, userEndpoint)
+     */
 
-    @JvmStatic @Provides
-    fun provideUserEndpoint(youtube: YouTube) : UserEndpoint
-            = YoutubeUserEndpoint(youtube)
+    @ExperimentalPagingApi
+    @Binds
+    abstract fun providePlaylistRepository(youtubePlaylistRepository: YoutubePlaylistRepository): PlaylistRepository
 
-    @JvmStatic @Provides
-    fun providePlaylistEndpoint(youtube: YouTube): PlaylistEndpoint
-            = YoutubePlaylistEndpoint(youtube)
 
-    @JvmStatic @Provides
-    fun provideYouTube(credential: GoogleAccountCredential) : YouTube {
-        val transport = AndroidHttp.newCompatibleTransport()
-        val jsonFactory = JacksonFactory.getDefaultInstance()
+    companion object {
+        @JvmStatic
+        @Provides
+        fun provideUserEndpoint(youtube: YouTube): UserEndpoint = YoutubeUserEndpoint(youtube)
 
-        return YouTube.Builder(transport, jsonFactory, credential).build()
-    }
+        @JvmStatic
+        @Provides
+        fun providePlaylistEndpoint(youtube: YouTube): PlaylistEndpoint =
+            YoutubePlaylistEndpoint(youtube)
 
-    @JvmStatic @Provides
-    fun provideGoogleCredentials(@UserEmail userEmail: String, appContext: Context) : GoogleAccountCredential {
-        val scopes = listOf(YouTubeScopes.YOUTUBE_READONLY)
+        @JvmStatic
+        @Provides
+        fun provideYouTube(credential: GoogleAccountCredential): YouTube {
+            val transport = AndroidHttp.newCompatibleTransport()
+            val jsonFactory = JacksonFactory.getDefaultInstance()
 
-        return GoogleAccountCredential.usingOAuth2(appContext, scopes).apply {
-            backOff = ExponentialBackOff()
-            selectedAccountName = userEmail
+            return YouTube.Builder(transport, jsonFactory, credential).build()
+        }
+
+        @JvmStatic
+        @Provides
+        fun provideGoogleCredentials(
+            @UserEmail userEmail: String,
+            appContext: Context
+        ): GoogleAccountCredential {
+            val scopes = listOf(YouTubeScopes.YOUTUBE_READONLY)
+
+            return GoogleAccountCredential.usingOAuth2(appContext, scopes).apply {
+                backOff = ExponentialBackOff()
+                selectedAccountName = userEmail
+            }
         }
     }
 }

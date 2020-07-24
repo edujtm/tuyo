@@ -1,7 +1,7 @@
 package me.edujtm.tuyo.data.endpoint
 
 import com.google.api.services.youtube.YouTube
-import me.edujtm.tuyo.data.PrimaryPlaylists
+import me.edujtm.tuyo.data.model.PrimaryPlaylists
 import javax.inject.Inject
 
 class YoutubeUserEndpoint
