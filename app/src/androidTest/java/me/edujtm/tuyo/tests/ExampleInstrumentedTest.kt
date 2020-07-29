@@ -1,4 +1,4 @@
-package me.edujtm.tuyo
+package me.edujtm.tuyo.tests
 
 
 import androidx.test.ext.junit.runners.AndroidJUnit4

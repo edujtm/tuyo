@@ -3,6 +3,7 @@ package me.edujtm.tuyo.ui.likedvideos
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.*
 import me.edujtm.tuyo.data.model.PlaylistItem
@@ -14,7 +15,7 @@ import kotlin.coroutines.CoroutineContext
 
 class LikedVideosViewModel
     @Inject constructor(
-        val playlistRepository: PlaylistRepository
+        val playlistRepository: PlaylistRepository<PagingData<PlaylistItem>>
     ) : ViewModel(), CoroutineScope {
 
     private val job = Job()
