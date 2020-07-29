@@ -10,12 +10,7 @@ import javax.inject.Inject
 class FakeAuthManager
     @Inject constructor() : AuthManager {
 
-    private var account: GoogleAccount? = GoogleAccount(
-        id = "super-random-id",
-        email = "example.user@gmail.com",
-        displayName = "Eduardo Macedo",
-        photoUrl = "https://placekitten.com/200/200"
-    )
+    private var account: GoogleAccount? = null
 
     override fun getSignInIntent(): Intent {
         return Intent().apply {

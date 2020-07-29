@@ -3,7 +3,6 @@ package me.edujtm.tuyo.ui.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_login.*
@@ -60,11 +59,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun checkGooglePlayServices() {
-        val resultCode = GoogleApi.getResultCode(this)
-        val result = GoogleApi.checkResultCode(resultCode)
-        when (result) {
-            is GoogleApi.AcquireResult.UserResolvableError -> showGoogleErrorDialog(resultCode)
-            is GoogleApi.AcquireResult.NotResolvableError -> showMessage("Google Api is necessary to use this app")
+        val status = GoogleApi.getAvailabilityStatus(this)
+        when (status) {
+            is GoogleApi.StatusResult.UserResolvableError -> showGoogleErrorDialog(status.resultCode)
+            is GoogleApi.StatusResult.NotResolvableError -> showMessage("Google Api is necessary to use this app")
         }
     }
 
@@ -79,8 +77,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showGoogleErrorDialog(resultCode: Int) {
-        val api = GoogleApiAvailability.getInstance()
-        val dialog = api.getErrorDialog(this, resultCode, REQUEST_GOOGLE_APIS)
+        val dialog = GoogleApi.getErrorDialog(this, resultCode, REQUEST_GOOGLE_APIS)
         dialog.show()
     }
 

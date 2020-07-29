@@ -134,11 +134,10 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     }
 
     private fun checkGoogleApiAvailability() {
-        val resultCode = GoogleApi.getResultCode(this)
-        val result = GoogleApi.checkResultCode(resultCode)
-        when (result) {
-            is GoogleApi.AcquireResult.UserResolvableError -> showGoogleErrorDialog(resultCode)
-            is GoogleApi.AcquireResult.NotResolvableError -> {
+        val status = GoogleApi.getAvailabilityStatus(this)
+        when (status) {
+            is GoogleApi.StatusResult.UserResolvableError -> showGoogleErrorDialog(status.resultCode)
+            is GoogleApi.StatusResult.NotResolvableError -> {
                 Snackbar.make(container, "Google API services are not available", Snackbar.LENGTH_SHORT)
                     .show()
             }
@@ -146,8 +145,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     }
 
     private fun showGoogleErrorDialog(resultCode: Int) {
-        val api = GoogleApiAvailability.getInstance()
-        val dialog = api.getErrorDialog(this, resultCode, REQUEST_API_SERVICES)
+        val dialog = GoogleApi.getErrorDialog(this, resultCode, REQUEST_API_SERVICES)
         dialog.show()
     }
 

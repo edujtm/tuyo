@@ -20,9 +20,9 @@ class YoutubePlaylistRepository<T>
 
     @FlowPreview
     override fun getPrimaryPlaylist(primaryPlaylist: PrimaryPlaylist) =
+        // TODO: inject dispatchers so Im able to test properly
         flow {
-            val playlistIds = userEndpoint.getPrimaryPlaylistsIds()
-            emit(playlistIds)
+            emit(userEndpoint.getPrimaryPlaylistsIds())
         }
         .flowOn(Dispatchers.IO)
         .flatMapConcat { playlistIds ->
