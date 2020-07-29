@@ -1,46 +1,24 @@
 package me.edujtm.tuyo.domain.repository
 
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import me.edujtm.tuyo.data.model.PlaylistItem
-import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.persistence.YoutubeDatabase
-import me.edujtm.tuyo.domain.paging.PlaylistRemoteMediator
+import me.edujtm.tuyo.domain.paging.PageSource
 import javax.inject.Inject
 
-@ExperimentalPagingApi
-class YoutubePlaylistRepository
+class YoutubePlaylistRepository<T>
 @Inject constructor(
-    val playlistEndpoint: PlaylistEndpoint,
     val userEndpoint: UserEndpoint,
-    val youtubeDatabase: YoutubeDatabase
-) : PlaylistRepository {
+    val playlistPager: PageSource<String, T>
+) : PlaylistRepository<T> {
 
-    override fun getPlaylist(playlistId: String): Flow<PagingData<PlaylistItem>> {
-        val pagingFactory = {
-            youtubeDatabase.playlistItemDao().playlistItemsById(playlistId)
-        }
-        return Pager(
-            config = PagingConfig(pageSize = PLAYLIST_PAGE_SIZE),
-            remoteMediator = PlaylistRemoteMediator(
-                playlistId,
-                playlistEndpoint,
-                youtubeDatabase
-            ),
-            pagingSourceFactory = pagingFactory
-        ).flow
+    override fun getPlaylist(playlistId: String): Flow<T> {
+        return playlistPager.getPages(playlistId)
     }
 
     @FlowPreview
-    @ExperimentalCoroutinesApi
     override fun getPrimaryPlaylist(primaryPlaylist: PrimaryPlaylist) =
         flow {
             val playlistIds = userEndpoint.getPrimaryPlaylistsIds()
@@ -57,8 +35,4 @@ class YoutubePlaylistRepository
 
             getPlaylist(selectedPlaylist)
         }
-
-    companion object {
-        const val PLAYLIST_PAGE_SIZE = 40
-    }
 }

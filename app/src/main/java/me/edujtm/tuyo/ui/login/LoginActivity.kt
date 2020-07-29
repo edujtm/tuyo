@@ -53,6 +53,8 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         } else if (requestCode == REQUEST_GOOGLE_APIS) {
+            // Check it again, there might be more than one error
+            // If everything is correct, then nothing happens
             checkGooglePlayServices()
         }
     }
