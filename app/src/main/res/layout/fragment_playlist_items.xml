@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="50dp"
-    tools:context=".ui.likedvideos.LikedVideosFragment">
+    tools:context=".ui.likedvideos.PlaylistItemListFragment">
 
     <TextView
         android:id="@+id/text_dashboard"

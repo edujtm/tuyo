@@ -13,7 +13,7 @@ import me.edujtm.tuyo.domain.domainmodel.RequestState
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class LikedVideosViewModel
+class PlaylistItemsViewModel
     @Inject constructor(
         val playlistRepository: PlaylistRepository<PagingData<PlaylistItem>>
     ) : ViewModel(), CoroutineScope {

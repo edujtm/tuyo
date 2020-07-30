@@ -9,37 +9,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.activityViewModel
 import me.edujtm.tuyo.common.viewModel
-import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 
 // TODO: refactor this class so that it represents all playlists (not only liked videos)
 @ExperimentalCoroutinesApi
-class LikedVideosFragment : Fragment() {
+class PlaylistItemsFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by activityViewModel {
             activityInjector.mainViewModel
     }
-    private val likedVideosViewModel: LikedVideosViewModel by viewModel {
-            activityInjector.likedVideosViewModel
+    private val likedVideosViewModel: PlaylistItemsViewModel by viewModel {
+            activityInjector.playlistItemsViewModel
     }
 
     private lateinit var textView: TextView
@@ -51,7 +45,7 @@ class LikedVideosFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_liked_videos, container, false)
+        val root = inflater.inflate(R.layout.fragment_playlist_items, container, false)
         textView = root.findViewById(R.id.text_dashboard)
         playlistView = root.findViewById(R.id.liked_videos_rv)
         return root

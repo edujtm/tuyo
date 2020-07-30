@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mobile_navigation"
+    android:id="@+id/main_navigation"
     app:startDestination="@+id/navigation_home">
 
     <fragment
@@ -12,10 +12,23 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_liked_videos"
-        android:name="me.edujtm.tuyo.ui.likedvideos.LikedVideosFragment"
+        android:id="@+id/navigation_playlist_items"
+        android:name="me.edujtm.tuyo.ui.playlistitems.PlaylistItemsFragment"
         android:label="@string/title_liked_videos"
-        tools:layout="@layout/fragment_liked_videos" />
+        tools:layout="@layout/fragment_playlist_items">
+        <argument
+            android:name="playlistId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true"
+            />
+
+        <argument
+            android:name="primaryPlaylist"
+            app:argType="me.edujtm.tuyo.data.model.PrimaryPlaylist"
+            android:defaultValue="LIKED_VIDEOS"
+            />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_search"
