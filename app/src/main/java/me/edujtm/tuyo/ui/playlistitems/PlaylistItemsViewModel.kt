@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.ui.likedvideos
+package me.edujtm.tuyo.ui.playlistitems
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +13,7 @@ import me.edujtm.tuyo.domain.domainmodel.RequestState
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+@ExperimentalCoroutinesApi
 class PlaylistItemsViewModel
     @Inject constructor(
         val playlistRepository: PlaylistRepository<PagingData<PlaylistItem>>
@@ -22,14 +23,12 @@ class PlaylistItemsViewModel
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
-    private val mutVideoInfo = MutableLiveData<RequestState<List<PlaylistItem>>>().apply {
-        value = RequestState.Loading
-    }
-    val likedVideos : LiveData<RequestState<List<PlaylistItem>>> = mutVideoInfo
-
-    @ExperimentalCoroutinesApi
-    fun getLikedVideos() = playlistRepository.getPrimaryPlaylist(PrimaryPlaylist.LIKED_VIDEOS)
+    fun getPlaylist(playlistId: String) = playlistRepository.getPlaylist(playlistId)
         .cachedIn(this)
+
+    fun getPrimaryPlaylist(playlist: PrimaryPlaylist)
+            = playlistRepository.getPrimaryPlaylist(playlist).cachedIn(this)
+
 
     override fun onCleared() {
         super.onCleared()

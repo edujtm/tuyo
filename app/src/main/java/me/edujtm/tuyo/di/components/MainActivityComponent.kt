@@ -8,7 +8,7 @@ import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.di.modules.YoutubeApiModule
 import me.edujtm.tuyo.di.qualifier.UserEmail
 import me.edujtm.tuyo.ui.home.HomeViewModel
-import me.edujtm.tuyo.ui.likedvideos.LikedVideosViewModel
+import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
 import me.edujtm.tuyo.ui.search.SearchViewModel
 
 @Subcomponent(modules = [
@@ -17,7 +17,7 @@ import me.edujtm.tuyo.ui.search.SearchViewModel
 interface MainActivityComponent {
     val searchViewModel: SearchViewModel
     val homeViewModel: HomeViewModel
-    val likedVideosViewModel: LikedVideosViewModel
+    val playlistItemsViewModel: PlaylistItemsViewModel
     val mainViewModel: MainViewModel
 
     fun inject(activity: MainActivity)

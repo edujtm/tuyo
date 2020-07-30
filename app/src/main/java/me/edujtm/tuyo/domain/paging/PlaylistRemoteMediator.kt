@@ -24,8 +24,6 @@ class PlaylistRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, PlaylistItem>
     ): MediatorResult {
-        Log.d("PAGINATION", "Load Event: $loadType")
-
         val loadPage = when (loadType) {
             LoadType.PREPEND -> {
                 val remoteKeys = youtubeDatabase.firstRemoteKeys(state)

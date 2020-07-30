@@ -14,8 +14,9 @@
     <fragment
         android:id="@+id/navigation_playlist_items"
         android:name="me.edujtm.tuyo.ui.playlistitems.PlaylistItemsFragment"
-        android:label="@string/title_liked_videos"
+        android:label="@string/title_playlist_items"
         tools:layout="@layout/fragment_playlist_items">
+
         <argument
             android:name="playlistId"
             app:argType="string"
@@ -35,5 +36,10 @@
         android:name="me.edujtm.tuyo.ui.search.SearchFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search" />
+
+    <action
+        android:id="@+id/action_view_playlist_items"
+        app:destination="@id/navigation_playlist_items"
+        />
 
 </navigation>

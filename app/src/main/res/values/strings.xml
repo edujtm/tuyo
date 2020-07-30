@@ -4,6 +4,7 @@
     <string name="title_home">Home</string>
     <string name="title_liked_videos">Liked Videos</string>
     <string name="title_search">Search</string>
+    <string name="title_playlist_items">Playlist contents</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
@@ -15,5 +16,6 @@
     <string name="login_title">Tuyo</string>
     <string name="login_subtitle">A playlist manager for Youtube</string>
     <string name="action_logout">Logout</string>
+    <string name="nav_favorites">Favorites</string>
 
 </resources>

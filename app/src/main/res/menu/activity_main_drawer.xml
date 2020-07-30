@@ -9,10 +9,18 @@
             android:icon="@drawable/ic_home_24"
             android:title="@string/title_home"
             />
+
+        <!-- TODO change liked videos icon -->
         <item
             android:id="@+id/navigation_liked_videos"
-            android:icon="@drawable/ic_star_24"
+            android:icon="@drawable/ic_liked_24"
             android:title="@string/title_liked_videos"
+            />
+
+        <item
+            android:id="@+id/navigation_favorites"
+            android:icon="@drawable/ic_star_24"
+            android:title="@string/nav_favorites"
             />
         <item
             android:id="@+id/navigation_search"
