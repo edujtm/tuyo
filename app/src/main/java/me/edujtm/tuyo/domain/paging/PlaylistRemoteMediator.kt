@@ -13,6 +13,7 @@ import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 import java.io.InvalidObjectException
 
 
+// TODO: this has an infinite loop on prepend operations
 @ExperimentalPagingApi
 class PlaylistRemoteMediator(
     val playlistId: String,
@@ -24,7 +25,7 @@ class PlaylistRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, PlaylistItem>
     ): MediatorResult {
-        val loadPage = when (loadType) {
+        val pageKey = when (loadType) {
             LoadType.PREPEND -> {
                 val remoteKeys = youtubeDatabase.firstRemoteKeys(state)
                     ?: throw InvalidObjectException("previous key cannot be null on a PREPEND paging operation")
@@ -48,16 +49,22 @@ class PlaylistRemoteMediator(
         }
 
         return try {
-
             val result = playlistEndpoint.getPlaylistById(
-                    playlistId, loadPage, pageSize = state.config.pageSize.toLong()
-                )
+                playlistId,
+                pageKey,
+                pageSize = state.config.pageSize.toLong()
+            )
 
             val playlistItems = result.items.map { PlaylistItem.fromJson(it) }
             val keys = playlistItems.map { RemoteKeys(it.id, result.prevPageToken, result.nextPageToken) }
-            val endOfPagination = result.nextPageToken == null
+            val endOfPagination = result.nextPageToken == null || result.prevPageToken == null
 
             youtubeDatabase.withTransaction {
+                if (loadType == LoadType.REFRESH) {
+                    youtubeDatabase.remoteKeysDao().clearKeys()
+                    youtubeDatabase.playlistItemDao().deletePlaylist(playlistId)
+                }
+
                 youtubeDatabase.playlistItemDao().insertAll(playlistItems)
                 youtubeDatabase.remoteKeysDao().insertAll(keys)
             }
@@ -80,8 +87,9 @@ private suspend fun YoutubeDatabase.lastRemoteKeys(state: PagingState<Int, Playl
 
 private suspend fun YoutubeDatabase.firstRemoteKeys(state: PagingState<Int, PlaylistItem>) : RemoteKeys? {
     return state.pages
-        .flatMap { it.data }
-        .firstOrNull()
+        .firstOrNull { it.data.isNotEmpty() }
+        ?.data
+        ?.firstOrNull()
         ?.let { playlistItem ->
             remoteKeysDao().getRemoteKeyForId(playlistItem.id)
         }

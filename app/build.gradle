@@ -17,6 +17,10 @@ android {
         testInstrumentationRunner "me.edujtm.tuyo.TestAppJUnitRunner"
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false

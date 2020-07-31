@@ -13,21 +13,24 @@ import me.edujtm.tuyo.auth.AuthResult
 import me.edujtm.tuyo.common.GoogleApi
 import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.startActivity
+import me.edujtm.tuyo.databinding.ActivityLoginBinding
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity() {
 
     @Inject lateinit var authManager: AuthManager
+    private lateinit var ui: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        ui = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(ui.root)
         injector.inject(this)
 
         supportActionBar?.hide()
 
-        login_btn.setSize(SignInButton.SIZE_WIDE)
-        login_btn.setOnClickListener {
+        ui.loginBtn.setSize(SignInButton.SIZE_WIDE)
+        ui.loginBtn.setOnClickListener {
             val signInIntent = authManager.getSignInIntent()
             startActivityForResult(signInIntent, REQUEST_LOGIN)
         }
@@ -82,7 +85,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
-        Snackbar.make(login_activity_cl, message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(ui.loginActivityCl, message, Snackbar.LENGTH_SHORT).show()
     }
 
     companion object {

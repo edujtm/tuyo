@@ -27,6 +27,7 @@ import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.*
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
+import me.edujtm.tuyo.databinding.ActivityMainBinding
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.MainActivityComponent
 import me.edujtm.tuyo.ui.login.LoginActivity
@@ -38,9 +39,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     @Inject lateinit var authManager: AuthManager
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var drawer: DrawerLayout
-    private lateinit var toggle: ActionBarDrawerToggle
-    private lateinit var container : CoordinatorLayout
+    private lateinit var ui : ActivityMainBinding
 
     override val activityInjector: MainActivityComponent by lazy {
         injector.mainActivityInjector
@@ -52,20 +51,17 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         activityInjector.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        ui = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         // --- UI setup ---
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        val mainLayout = ui.mainLayout
+        setSupportActionBar(mainLayout.toolbar)
 
-        drawer = findViewById(R.id.drawer_layout)
-        container = findViewById(R.id.main_layout)
-
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
+        mainLayout.fab.setOnClickListener {
             val email = intent?.getStringExtra(USER_EMAIL) ?: "No Email"
-            Snackbar.make(container, email, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(mainLayout.root, email, Snackbar.LENGTH_SHORT).show()
         }
 
         authManager.getUserAccount()?.let { account ->
@@ -74,18 +70,17 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
         // --- navigation setup ---
 
-        toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name)
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home,
             R.id.navigation_playlist_items,
             R.id.navigation_search
-        ), drawer)
+        ), ui.drawerLayout)
 
         val navController = findNavController(R.id.nav_host_fragment)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navView.setNavigationItemSelectedListener { menuItem ->
-            drawer.closeDrawers()
+            ui.drawerLayout.closeDrawers()
             menuItem.isChecked = true
             when (menuItem.itemId) {
                 R.id.navigation_liked_videos -> {
@@ -163,7 +158,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         when (status) {
             is GoogleApi.StatusResult.UserResolvableError -> showGoogleErrorDialog(status.resultCode)
             is GoogleApi.StatusResult.NotResolvableError -> {
-                Snackbar.make(container, "Google API services are not available", Snackbar.LENGTH_SHORT)
+                Snackbar.make(ui.mainLayout.root, "Google API services are not available", Snackbar.LENGTH_SHORT)
                     .show()
             }
         }
@@ -185,8 +180,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     }
 
     private fun setupNavigationHeader(account: GoogleAccount) {
-        val navigationView = drawer.findViewById<NavigationView>(R.id.nav_view)
-        val header = navigationView.getHeaderView(0)
+        val header = ui.navView.getHeaderView(0)
 
         val userImageView = header.findViewById<ImageView>(R.id.drawer_user_image_iv)
         val usernameView = header.findViewById<TextView>(R.id.drawer_user_name_tv)
