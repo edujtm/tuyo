@@ -1,7 +1,9 @@
 package me.edujtm.tuyo.ui.playlistitems
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,6 +32,7 @@ import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.activityInjector
 import me.edujtm.tuyo.common.activityViewModel
+import me.edujtm.tuyo.common.startImplicit
 import me.edujtm.tuyo.common.viewModel
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
@@ -66,7 +69,13 @@ class PlaylistItemsFragment : Fragment() {
 
         val decoration = DividerItemDecoration(requireContext(),  DividerItemDecoration.VERTICAL)
         val hostActivity = requireActivity()
-        playlistAdapter = PlaylistAdapter(hostActivity)
+
+        playlistAdapter = PlaylistAdapter(
+            hostActivity,
+            onItemClickListener = { playlistItem ->
+                watchYoutube(hostActivity, playlistItem.videoId)
+            })
+
         with(ui!!.playlistRecyclerView) {
             layoutManager = LinearLayoutManager(hostActivity)
             adapter = playlistAdapter
@@ -151,8 +160,29 @@ class PlaylistItemsFragment : Fragment() {
         }
     }
 
+    private fun watchYoutube(context: Context, videoId: String) {
+        val component = context.startImplicit { intent ->
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse("vnd.youtube:$videoId")
+        }
+
+        // Fallback with webview in case youtube is not installed
+        if (component == null) {
+            context.startImplicit { intent ->
+                intent.action = Intent.ACTION_VIEW
+                intent.data = Uri.parse(
+                    "http://www.youtube.com/watch?v=$videoId"
+                )
+            }
+        }
+    }
+
     companion object {
         const val REQUEST_AUTHORIZATION = 1001
+    }
+
+    private fun <T> Any?.onNullResult(action: () -> T) : T? {
+        return if (this == null) action() else null
     }
 
 }

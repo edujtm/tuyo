@@ -1,7 +1,10 @@
 package me.edujtm.tuyo.common
 
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -45,6 +48,15 @@ inline fun <reified T : Activity> Activity.startActivity(noinline intentAddons: 
         val intent = Intent(this, T::class.java)
         intentAddons?.let { intent.apply(it) }
         startActivity(intent)
+}
+
+fun Context.startImplicit(intentAddons: (Intent) -> Unit) : ActivityInfo? {
+        val intent = Intent().apply(intentAddons)
+        val activityInfo = intent.resolveActivityInfo(packageManager, intent.flags)
+        if (activityInfo != null && activityInfo.exported) {
+                startActivity(intent)
+        }
+        return activityInfo
 }
 
 /** Allows the application to expose the dagger component to activities */
