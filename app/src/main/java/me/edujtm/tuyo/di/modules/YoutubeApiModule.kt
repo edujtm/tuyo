@@ -30,19 +30,15 @@ abstract class YoutubeApiModule {
 
     @Binds
     abstract fun providePlaylistEndpoint(
-        youtubePlaylistEndpoint: YoutubePlaylistEndpoint
+        repository: YoutubePlaylistEndpoint
     ): PlaylistEndpoint
 
+    @Binds
+    abstract fun providePlaylistRepository(
+        repository: YoutubePlaylistRepository
+    ): PlaylistRepository
+
     companion object {
-        @ExperimentalPagingApi
-        @JvmStatic
-        @Provides
-        fun providePlaylistRepository(
-            userEndpoint: UserEndpoint,
-            playlistPageSource: PlaylistPageSource
-        ): PlaylistRepository<PagingData<PlaylistItem>> {
-            return YoutubePlaylistRepository(userEndpoint, playlistPageSource)
-        }
 
         @JvmStatic
         @Provides

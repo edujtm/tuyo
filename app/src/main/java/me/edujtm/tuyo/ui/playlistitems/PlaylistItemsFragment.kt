@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,10 +25,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import com.google.api.services.youtube.model.PlaylistItem
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.activityInjector
@@ -35,6 +35,7 @@ import me.edujtm.tuyo.common.activityViewModel
 import me.edujtm.tuyo.common.startImplicit
 import me.edujtm.tuyo.common.viewModel
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
+import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 import java.io.IOException
 
@@ -50,7 +51,6 @@ class PlaylistItemsFragment : Fragment() {
     }
 
     private val args: PlaylistItemsFragmentArgs by navArgs()
-
     private var playlistAdapter: PlaylistAdapter? = null
     private var ui: FragmentPlaylistItemsBinding? = null
 
@@ -75,15 +75,19 @@ class PlaylistItemsFragment : Fragment() {
             onItemClickListener = { playlistItem ->
                 watchYoutube(hostActivity, playlistItem.videoId)
             })
+        playlistAdapter!!.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
+        val listManager = LinearLayoutManager(hostActivity)
+        val paginator = FlowPaginator(listManager)
         with(ui!!.playlistRecyclerView) {
-            layoutManager = LinearLayoutManager(hostActivity)
+            layoutManager = listManager
             adapter = playlistAdapter
             addItemDecoration(decoration)
+            addOnScrollListener(paginator)
         }
 
-        setupLoadingScreen()
         getPlaylistItems()
+        listenForMoreItemRequests(paginator)
     }
 
     override fun onDestroyView() {
@@ -99,16 +103,18 @@ class PlaylistItemsFragment : Fragment() {
         }
     }
 
-    private fun setupLoadingScreen() {
+    private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
-            playlistAdapter?.let { adapter ->
-                adapter.loadStateFlow
-                .distinctUntilChangedBy { it.refresh }
-                .filter { it.refresh is LoadState.NotLoading }
-                .collect {
-                    with(ui!!) {
-                        playlistRecyclerView.isVisible = true
-                        loadingItemsPb.isVisible = false
+            Log.d("UI_PLAYLIST_ITEMS", "Listening for pagination")
+            paginator.events.collect {
+                Log.d("FLOW_PAGINATOR", "Received page: ${it.first}")
+                val pageToken = playlistAdapter?.items?.lastOrNull()?.nextPageKey
+                Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
+                pageToken?.let { token ->
+                    if (args.playlistId != null) {
+                        playlistItemsViewModel.requestPlaylistItems(args.playlistId!!, token)
+                    } else {
+                        playlistItemsViewModel.requestPlaylistItems(args.primaryPlaylist, token)
                     }
                 }
             }
@@ -117,16 +123,32 @@ class PlaylistItemsFragment : Fragment() {
 
     private fun getPlaylistItems() {
         viewLifecycleOwner.lifecycleScope.launch {
+            Log.d("UI_PLAYLIST_ITEMS", "Listening for playlist items")
             try {
                 if (args.playlistId != null) {
-                    // Kotlin can't smart cast complex expressions
-                    playlistItemsViewModel.getPlaylist(args.playlistId!!).collectLatest {
-                        playlistAdapter?.submitData(it)
-                    }
+                    // Null assertion: Kotlin can't smart cast complex expressions
+                    // But this code won't run on multiple threads or will be changed
+                    // after initialization
+                    // TODO: check if this actually might throw exception
+                    playlistItemsViewModel
+                        .getPlaylist(args.playlistId!!)
+                        .collectLatest { playlistItems ->
+                            Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistItems.size}")
+                            if (playlistItems.isEmpty()) {
+                                playlistItemsViewModel.requestPlaylistItems(args.playlistId!!)
+                            }
+                            playlistAdapter?.insertAll(playlistItems)
+                        }
                 } else {
-                    playlistItemsViewModel.getPrimaryPlaylist(args.primaryPlaylist).collectLatest {
-                        playlistAdapter?.submitData(it)
-                    }
+                   playlistItemsViewModel
+                        .getPrimaryPlaylist(args.primaryPlaylist)
+                        .collectLatest { playlistItems ->
+                            Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistItems.size}")
+                            if (playlistItems.isEmpty()) {
+                                playlistItemsViewModel.requestPlaylistItems(args.primaryPlaylist)
+                            }
+                            playlistAdapter?.insertAll(playlistItems)
+                        }
                 }
             } catch (e: IOException) {
                 Log.e("API_ERROR", "Received error: $e")
@@ -180,9 +202,4 @@ class PlaylistItemsFragment : Fragment() {
     companion object {
         const val REQUEST_AUTHORIZATION = 1001
     }
-
-    private fun <T> Any?.onNullResult(action: () -> T) : T? {
-        return if (this == null) action() else null
-    }
-
 }

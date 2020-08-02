@@ -1,7 +1,6 @@
 package me.edujtm.tuyo.common
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -14,8 +13,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.ComponentProvider
-import me.edujtm.tuyo.di.components.MainActivityComponent
 
+// TODO: Comment these methods
 inline fun <reified T : ViewModel> FragmentActivity.viewModel(
         crossinline provider: () -> T
 ) = viewModels<T> {

@@ -4,15 +4,15 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import me.edujtm.tuyo.R
 import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.databinding.PlaylistItemBinding
+
+typealias OnItemClick<T> = (T) -> Unit
 
 /**
  * This will be the main adapter for playlist videos list. It'll be used by
@@ -20,8 +20,12 @@ import me.edujtm.tuyo.databinding.PlaylistItemBinding
  */
 class PlaylistAdapter(
     val context: Context,
-    val onItemClickListener: ((PlaylistItem) -> Unit)? = null
-) : PagingDataAdapter<PlaylistItem, PlaylistAdapter.ViewHolder>(PlaylistItemDiffCallback()) {
+    val onItemClickListener: OnItemClick<PlaylistItem>? = null
+) : ListAdapter<PlaylistItem, PlaylistAdapter.ViewHolder>(PlaylistItemDiffCallback()) {
+
+    private val _items = mutableListOf<PlaylistItem>()
+    val items : List<PlaylistItem>
+        get() = _items
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -37,6 +41,14 @@ class PlaylistAdapter(
         }
     }
 
+    fun insertAll(playlistItems: List<PlaylistItem>) {
+        _items.clear()
+        notifyDataSetChanged()
+        _items.addAll(playlistItems)
+        submitList(_items)
+    }
+
+    // TODO: refactor inner class
     inner class ViewHolder(
         val binding: PlaylistItemBinding
     ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {

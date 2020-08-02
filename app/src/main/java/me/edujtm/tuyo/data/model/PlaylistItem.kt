@@ -12,11 +12,15 @@ data class PlaylistItem(
     val description: String,
     val playlistId: String,
     val videoId: String,
-    val thumbnail: String?
+    val thumbnail: String?,
+    val nextPageKey: String?
 ) {
     companion object {
         // TODO: Maybe change this to a better abstraction
-        fun fromJson(json: com.google.api.services.youtube.model.PlaylistItem) : PlaylistItem {
+        fun fromJson(
+            json: com.google.api.services.youtube.model.PlaylistItem,
+            nextToken: String? = null
+        ) : PlaylistItem {
             val snippet = json.snippet
             return PlaylistItem(
                 json.id,
@@ -25,7 +29,8 @@ data class PlaylistItem(
                 snippet.description,
                 snippet.playlistId,
                 json.contentDetails.videoId,
-                snippet.thumbnails?.default?.url
+                snippet.thumbnails?.default?.url,
+                nextToken
             )
         }
     }
