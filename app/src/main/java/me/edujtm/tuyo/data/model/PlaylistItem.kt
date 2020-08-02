@@ -13,7 +13,7 @@ data class PlaylistItem(
     val playlistId: String,
     val videoId: String,
     val thumbnail: String?,
-    val nextPageKey: String?
+    val nextPageToken: String?
 ) {
     companion object {
         // TODO: Maybe change this to a better abstraction

@@ -67,8 +67,6 @@ class LoginActivityTest {
             .check(matches(withText("Authentication error")))
     }
 
-
-
     private fun createAccountPickerErrorStub(): Instrumentation.ActivityResult {
         return Instrumentation.ActivityResult(RESULT_OK, null)
     }

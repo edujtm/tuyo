@@ -1,8 +1,6 @@
 package me.edujtm.tuyo.di.modules
 
 import android.content.Context
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.PagingData
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -16,9 +14,7 @@ import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.endpoint.YoutubePlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.YoutubeUserEndpoint
-import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.di.qualifier.UserEmail
-import me.edujtm.tuyo.domain.paging.PlaylistPageSource
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 

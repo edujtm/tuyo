@@ -1,11 +1,12 @@
 package me.edujtm.tuyo.data.endpoint
 
-import com.google.api.services.youtube.model.PlaylistItemListResponse
+import me.edujtm.tuyo.data.model.PlaylistItem
+import me.edujtm.tuyo.domain.domainmodel.PagedData
 
 interface PlaylistEndpoint {
-    suspend fun getPlaylistById(
+    fun getPlaylistById(
         id: String,
         token: String? = null,
         pageSize: Long = 40
-    ) : PlaylistItemListResponse
+    ) : PagedData<List<PlaylistItem>, String?>
 }

@@ -1,6 +1,5 @@
 package me.edujtm.tuyo.data.persistence
 
-import androidx.paging.PagingSource
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import me.edujtm.tuyo.data.model.PlaylistItem
@@ -10,9 +9,6 @@ interface PlaylistItemDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(playlistItems: List<PlaylistItem>)
-
-    @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId")
-    fun playlistItemsById(playlistId: String): PagingSource<Int, PlaylistItem>
 
     @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId")
     fun playlistItemsFlow(playlistId: String): Flow<List<PlaylistItem>>

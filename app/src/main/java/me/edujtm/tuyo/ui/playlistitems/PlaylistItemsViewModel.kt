@@ -1,16 +1,9 @@
 package me.edujtm.tuyo.ui.playlistitems
 
 import androidx.lifecycle.ViewModel
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
-import me.edujtm.tuyo.data.model.PlaylistItem
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import kotlinx.coroutines.flow.*
+import me.edujtm.tuyo.data.model.*
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -26,36 +19,45 @@ class PlaylistItemsViewModel
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
-    fun requestPlaylistItems(playlistId: String, pageToken: String? = null) =
+    private val _playlistItems = MutableStateFlow(emptyList<PlaylistItem>())
+    val playlistItems: StateFlow<List<PlaylistItem>>
+        get() =_playlistItems
+
+    fun requestPlaylistItems(selectedPlaylist: SelectedPlaylist, pageToken: String? = null) =
         launch {
-            playlistRepository.requestPlaylistItems(playlistId, pageToken)
+            when (selectedPlaylist) {
+                is SelectedPlaylist.Primary -> {
+                    val playlistIds = playlistRepository.getPrimaryPlaylistsIds()
+                    val playlistId = playlistIds.selectPlaylist(selectedPlaylist.playlist)
+                    playlistRepository.requestPlaylistItems(playlistId, pageToken)
+                }
+                is SelectedPlaylist.Extra -> playlistRepository.requestPlaylistItems(selectedPlaylist.playlistId, pageToken)
+            }
         }
 
-    fun requestPlaylistItems(primaryPlaylist: PrimaryPlaylist, pageToken: String? = null) =
-        launch {
-            val playlistIds = playlistRepository.getPrimaryPlaylistsIds()
-            val playlistId = playlistIds.selectPlaylist(primaryPlaylist)
-            playlistRepository.requestPlaylistItems(playlistId, pageToken)
+    suspend fun getPlaylist(selectedPlaylist: SelectedPlaylist) {
+        val playlistFlow = when (selectedPlaylist) {
+            is SelectedPlaylist.Primary -> getPrimaryPlaylistFlow(selectedPlaylist.playlist)
+            is SelectedPlaylist.Extra -> getPlaylistFlow(selectedPlaylist.playlistId)
         }
 
-    fun getPlaylist(playlistId: String) = playlistRepository.getPlaylist(playlistId)
+        playlistFlow.collect { dbItems ->
+            if (dbItems.isEmpty()) {
+                requestPlaylistItems(selectedPlaylist)
+            }
+            _playlistItems.value = dbItems
+        }
+    }
 
-    fun getPrimaryPlaylist(playlist: PrimaryPlaylist) =
+    fun getPlaylistFlow(playistId: String) = playlistRepository.getPlaylist(playistId)
+
+    fun getPrimaryPlaylistFlow(playlist: PrimaryPlaylist) =
         flow { emit(playlistRepository.getPrimaryPlaylistsIds()) }
             .flowOn(Dispatchers.IO)
             .flatMapConcat { playlistIds ->
                 val playlistId = playlistIds.selectPlaylist(playlist)
                 playlistRepository.getPlaylist(playlistId)
             }
-
-    private fun PrimaryPlaylistsIds.selectPlaylist(primaryPlaylist: PrimaryPlaylist) : String {
-        return when (primaryPlaylist) {
-            PrimaryPlaylist.FAVORITES -> favorites
-            PrimaryPlaylist.LIKED_VIDEOS -> likedVideos
-            PrimaryPlaylist.WATCH_LATER -> watchLater
-            PrimaryPlaylist.WATCH_HISTORY -> history
-        }
-    }
 
     override fun onCleared() {
         super.onCleared()

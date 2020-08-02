@@ -24,7 +24,7 @@ object Fake {
         "https://fakeimg.pl/120x90/"
     }
 
-    fun playlistItem() = generateSequence {
+    fun playlistItem(nextPageKey: String? = null) = generateSequence {
         PlaylistItem(
             id = Fake.strings(size = 10).first(),
             channelId = Fake.strings(size = 10).first(),
@@ -32,7 +32,8 @@ object Fake {
             description = Fakeit.lorem().words(),
             playlistId = Fake.strings(size = 10).first(),
             videoId = Fake.strings(size = 10).first(),
-            thumbnail = imageUrl().first()
+            thumbnail = imageUrl().first(),
+            nextPageKey = nextPageKey
         )
     }
 

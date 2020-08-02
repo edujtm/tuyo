@@ -19,8 +19,7 @@ buildscript {
         mockk_version = '1.10.0'
         navigation_version = "2.3.0"
         playservices_version = '18.0.0'
-        paging_version = "3.0.0-alpha02"
-        room_version = "2.3.0-alpha01"
+        room_version = "2.2.5"
         testrunner_version = '1.2.0'
         youtube_version = '1.22.0'
     }
