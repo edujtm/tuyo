@@ -8,6 +8,7 @@ import javax.inject.Inject
 class MainViewModel
     @Inject constructor() : ViewModel() {
 
+    // TODO: Review if I can get the same functionality using Flows/Channels
     private val eventEmitter = EventEmitter<Event>()
     val events: EventSource<Event> = eventEmitter
 

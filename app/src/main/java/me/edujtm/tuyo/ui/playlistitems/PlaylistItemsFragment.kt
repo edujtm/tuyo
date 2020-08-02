@@ -63,6 +63,7 @@ class PlaylistItemsFragment : Fragment() {
     ): View? {
         val binds = FragmentPlaylistItemsBinding.inflate(inflater, container, false)
         ui = binds
+        Log.d("UI_PLAYLIST_ITEMS", "Created binding")
         return binds.root
     }
 
@@ -107,14 +108,16 @@ class PlaylistItemsFragment : Fragment() {
 
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
-            Log.d("UI_PLAYLIST_ITEMS", "Listening for pagination")
-            paginator.events.collect {
-                Log.d("FLOW_PAGINATOR", "Received page: ${it.first}")
-                val pageToken = playlistAdapter?.items?.lastOrNull()?.nextPageToken
-                Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
-                pageToken?.let { token ->
-                    playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
+            try {
+                paginator.events.collect {
+                    val pageToken = playlistAdapter?.currentList?.lastOrNull()?.nextPageToken
+                    Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
+                    pageToken?.let { token ->
+                        playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
+                    }
                 }
+            } catch (e: IOException) {
+                handleYoutubeError(e)
             }
         }
     }
@@ -123,14 +126,13 @@ class PlaylistItemsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             playlistItemsViewModel.playlistItems.collectLatest { playlistItems ->
                 Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistItems.size}")
-                playlistAdapter?.insertAll(playlistItems)
+                playlistAdapter?.submitList(playlistItems)
             }
         }
     }
 
     private fun getPlaylistItems() {
         viewLifecycleOwner.lifecycleScope.launch {
-            Log.d("UI_PLAYLIST_ITEMS", "Listening for playlist items")
             try {
                 playlistItemsViewModel.getPlaylist(selectedPlaylist)
             } catch (e: IOException) {

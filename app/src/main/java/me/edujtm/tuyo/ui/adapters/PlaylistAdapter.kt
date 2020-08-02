@@ -22,10 +22,6 @@ class PlaylistAdapter(
     val onItemClickListener: OnItemClick<PlaylistItem>? = null
 ) : ListAdapter<PlaylistItem, PlaylistAdapter.ViewHolder>(PlaylistItemDiffCallback()) {
 
-    private val _items = mutableListOf<PlaylistItem>()
-    val items : List<PlaylistItem>
-        get() = _items
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = PlaylistItemBinding.inflate(inflater, parent, false)
@@ -38,13 +34,6 @@ class PlaylistAdapter(
             holder.playlistItem = item
             holder.bind(item)
         }
-    }
-
-    fun insertAll(playlistItems: List<PlaylistItem>) {
-        _items.clear()
-        notifyDataSetChanged()
-        _items.addAll(playlistItems)
-        submitList(_items)
     }
 
     // TODO: refactor inner class

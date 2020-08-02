@@ -14,6 +14,5 @@ import javax.inject.Singleton
     exportSchema = false
 )
 abstract class YoutubeDatabase : RoomDatabase() {
-    abstract fun remoteKeysDao(): RemoteKeysDao
     abstract fun playlistItemDao(): PlaylistItemDao
 }

@@ -7,6 +7,7 @@ import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 import javax.inject.Inject
 
@@ -14,7 +15,7 @@ class YoutubePlaylistRepository
 @Inject constructor(
     val userEndpoint: UserEndpoint,
     val playlistEndpoint: PlaylistEndpoint,
-    val database: YoutubeDatabase
+    val playlistItemDao: PlaylistItemDao
 ) : PlaylistRepository {
 
     override suspend fun getPrimaryPlaylistsIds(): PrimaryPlaylistsIds =
@@ -25,10 +26,10 @@ class YoutubePlaylistRepository
     override suspend fun requestPlaylistItems(playlistId: String, token: String?) =
         withContext(Dispatchers.IO) {
             val result = playlistEndpoint.getPlaylistById(playlistId, token)
-            database.playlistItemDao().insertAll(result.data)
+            playlistItemDao.insertAll(result.data)
         }
 
     override fun getPlaylist(playlistId: String): Flow<List<PlaylistItem>> {
-        return database.playlistItemDao().playlistItemsFlow(playlistId)
+        return playlistItemDao.playlistItemsFlow(playlistId)
     }
 }
