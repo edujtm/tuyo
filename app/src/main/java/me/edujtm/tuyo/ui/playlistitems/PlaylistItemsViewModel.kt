@@ -2,9 +2,9 @@ package me.edujtm.tuyo.ui.playlistitems
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.data.model.*
+import me.edujtm.tuyo.domain.DispatcherProvider
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -13,13 +13,15 @@ import kotlin.coroutines.CoroutineContext
 @FlowPreview
 class PlaylistItemsViewModel
     @Inject constructor(
-        val playlistRepository: PlaylistRepository
+        val playlistRepository: PlaylistRepository,
+        val dispatchers: DispatcherProvider
     ) : ViewModel(), CoroutineScope {
 
     private val job = Job()
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main
+        get() = job + dispatchers.main
 
+    /** Works as a memory cache for the values from the DB */
     private val _playlistItems = MutableStateFlow(emptyList<PlaylistItem>())
     val playlistItems: StateFlow<List<PlaylistItem>>
         get() =_playlistItems
@@ -54,7 +56,7 @@ class PlaylistItemsViewModel
 
     fun getPrimaryPlaylistFlow(playlist: PrimaryPlaylist) =
         flow { emit(playlistRepository.getPrimaryPlaylistsIds()) }
-            .flowOn(Dispatchers.IO)
+            .flowOn(dispatchers.io)
             .flatMapConcat { playlistIds ->
                 val playlistId = playlistIds.selectPlaylist(playlist)
                 playlistRepository.getPlaylist(playlistId)

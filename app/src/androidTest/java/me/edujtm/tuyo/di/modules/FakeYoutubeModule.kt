@@ -19,16 +19,4 @@ abstract class FakeYoutubeModule {
 
     @Binds
     abstract fun providePlaylistEndpoint(fakePlaylistEndpoint: FakePlaylistEndpoint): PlaylistEndpoint
-
-    companion object {
-        @JvmStatic
-        @Provides
-        fun provideFakePlaylistRepository(
-            userEndpoint: UserEndpoint,
-            playlistEndpoint: PlaylistEndpoint,
-            database: YoutubeDatabase
-        ): PlaylistRepository {
-            return YoutubePlaylistRepository(userEndpoint, playlistEndpoint, database)
-        }
-    }
 }

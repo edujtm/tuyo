@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.tests
+package me.edujtm.tuyo.functional
 
 import android.content.Intent
 import androidx.test.espresso.Espresso.onView

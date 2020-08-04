@@ -3,13 +3,12 @@ package me.edujtm.tuyo.data.persistence
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import me.edujtm.tuyo.data.model.PlaylistItem
-import me.edujtm.tuyo.data.model.RemoteKeys
 import javax.inject.Singleton
 
 
 @Singleton
 @Database(
-    entities = [PlaylistItem::class, RemoteKeys::class],
+    entities = [PlaylistItem::class],
     version = 1,
     exportSchema = false
 )

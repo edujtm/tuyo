@@ -4,6 +4,7 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import me.edujtm.tuyo.di.modules.AuthModule
+import me.edujtm.tuyo.di.modules.ConcurrencyModule
 import me.edujtm.tuyo.di.modules.PersistenceModule
 import me.edujtm.tuyo.ui.login.LoginActivity
 import javax.inject.Singleton
@@ -12,6 +13,7 @@ import javax.inject.Singleton
 @Component(modules = [
     AuthModule::class,
     PersistenceModule::class,
+    ConcurrencyModule::class,
     MainActivityComponent.InstallModule::class
 ])
 interface AppComponent {

@@ -1,5 +1,6 @@
 package me.edujtm.tuyo.fakes
 
+import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
 

@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.tests
+package me.edujtm.tuyo.functional
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation

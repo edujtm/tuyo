@@ -1,5 +1,6 @@
-package me.edujtm.tuyo
+package me.edujtm.tuyo.unit
 
+import me.edujtm.tuyo.MainViewModel
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert
 import org.junit.Assert.assertEquals

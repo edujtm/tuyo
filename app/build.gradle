@@ -34,6 +34,16 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    sourceSets {
+        test {
+            java.srcDirs += "$projectDir/src/sharedTestUtils/java"
+        }
+
+        androidTest {
+            java.srcDirs += "$projectDir/src/sharedTestUtils/java"
+        }
+    }
 }
 
 dependencies {
