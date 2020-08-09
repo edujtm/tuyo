@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
+import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 
 @Module
@@ -13,4 +14,10 @@ object FakePersistenceModule {
     fun provideYoutubeDatabase(context: Context) : YoutubeDatabase {
         return Room.inMemoryDatabaseBuilder(context, YoutubeDatabase::class.java).build()
     }
+
+    @JvmStatic @Provides
+    fun providesPlaylistItemDao(database: YoutubeDatabase) : PlaylistItemDao {
+        return database.playlistItemDao()
+    }
+
 }

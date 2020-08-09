@@ -5,16 +5,19 @@ import dagger.BindsInstance
 import dagger.Component
 import me.edujtm.tuyo.di.components.AppComponent
 import me.edujtm.tuyo.di.modules.FakeAuthModule
+import me.edujtm.tuyo.di.modules.FakeConcurrencyModule
 import me.edujtm.tuyo.di.modules.FakePersistenceModule
 
 
 @Component(modules = [
     FakeAuthModule::class,
     FakePersistenceModule::class,
+    FakeConcurrencyModule::class,
     TestMainActivityComponent.InstallModule::class
 ])
 interface TestAppComponent : AppComponent {
-    val activityInjectorFactory: TestMainActivityComponent.Factory
+
+    override val mainActivityInjector: TestMainActivityComponent.Factory
 
     @Component.Factory
     interface Factory {

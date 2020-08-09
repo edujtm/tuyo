@@ -4,5 +4,5 @@ import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
 
 /** Retrieves information about the user from an API */
 interface UserEndpoint {
-    fun getPrimaryPlaylistsIds() : PrimaryPlaylistsIds
+    suspend fun getPrimaryPlaylistsIds() : PrimaryPlaylistsIds
 }

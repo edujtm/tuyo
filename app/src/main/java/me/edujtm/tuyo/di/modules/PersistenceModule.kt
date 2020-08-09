@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
+import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 import javax.inject.Singleton
 
@@ -11,13 +12,18 @@ import javax.inject.Singleton
 object PersistenceModule {
 
     @JvmStatic
-    @Provides
-    @Singleton
+    @Provides @Singleton
     fun providesYoutubeDatabase(context: Context): YoutubeDatabase {
         return Room.databaseBuilder(
             context,
             YoutubeDatabase::class.java,
             "Youtube.db")
             .build()
+    }
+
+    @JvmStatic
+    @Provides @Singleton
+    fun providePlaylistItemDao(database: YoutubeDatabase): PlaylistItemDao {
+        return database.playlistItemDao()
     }
 }

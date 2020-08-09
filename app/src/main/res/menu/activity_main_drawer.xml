@@ -10,7 +10,6 @@
             android:title="@string/title_home"
             />
 
-        <!-- TODO change liked videos icon -->
         <item
             android:id="@+id/navigation_liked_videos"
             android:icon="@drawable/ic_liked_24"

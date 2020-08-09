@@ -1,7 +1,7 @@
 package me.edujtm.tuyo.data.persistence
 
-import androidx.paging.PagingSource
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import me.edujtm.tuyo.data.model.PlaylistItem
 
 @Dao
@@ -11,7 +11,7 @@ interface PlaylistItemDao {
     suspend fun insertAll(playlistItems: List<PlaylistItem>)
 
     @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId")
-    fun playlistItemsById(playlistId: String): PagingSource<Int, PlaylistItem>
+    fun getPlaylistItemsById(playlistId: String): Flow<List<PlaylistItem>>
 
     @Query("DELETE FROM  playlist_items WHERE playlistId = :playlistId")
     fun deletePlaylist(playlistId: String)

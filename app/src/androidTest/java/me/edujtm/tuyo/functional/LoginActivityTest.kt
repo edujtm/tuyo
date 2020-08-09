@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.tests
+package me.edujtm.tuyo.functional
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
@@ -65,9 +65,8 @@ class LoginActivityTest {
         // And a error snackbar should be shown to the user
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText("Authentication error")))
+
     }
-
-
 
     private fun createAccountPickerErrorStub(): Instrumentation.ActivityResult {
         return Instrumentation.ActivityResult(RESULT_OK, null)
