@@ -19,4 +19,9 @@ abstract class FakeYoutubeModule {
 
     @Binds
     abstract fun providePlaylistEndpoint(fakePlaylistEndpoint: FakePlaylistEndpoint): PlaylistEndpoint
+
+    @Binds
+    abstract fun providePlaylistRepository(
+        repository: YoutubePlaylistRepository
+    ): PlaylistRepository
 }

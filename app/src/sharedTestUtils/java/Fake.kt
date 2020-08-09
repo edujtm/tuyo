@@ -25,13 +25,13 @@ object Fake {
         "https://fakeimg.pl/120x90/"
     }
 
-    fun playlistItem(id: String? = null, nextPageToken: String? = null) = generateSequence {
+    fun playlistItem(playlistId: String? = null, nextPageToken: String? = null) = generateSequence {
         PlaylistItem(
-            id = id ?: strings(size = 10).first(),
+            id = strings(size = 10).first(),
             channelId = strings(size = 10).first(),
             title = strings(size = 20).first(),
             description = strings(size = 20).first(),
-            playlistId = strings(size = 10).first(),
+            playlistId = playlistId ?: strings(size = 10).first(),
             videoId = strings(size = 10).first(),
             thumbnail = imageUrl().first(),
             nextPageToken = nextPageToken
@@ -51,11 +51,17 @@ object Fake {
             : Map<String?, PagedData<T, String?>> {
         var currentToken : String? = null
         val pages = HashMap<String?, PagedData<T, String?>>()
+
+        // Add first and middle pages
         for (nextToken in tokens) {
             val data = pageInitializer(currentToken, nextToken)
             pages[currentToken] = PagedData(data, currentToken, nextToken)
             currentToken = nextToken
         }
+
+        // Last page has null as nextToken
+        val lastPage = pageInitializer(currentToken, null)
+        pages[currentToken] = PagedData(lastPage, currentToken, null)
         return pages
     }
 }

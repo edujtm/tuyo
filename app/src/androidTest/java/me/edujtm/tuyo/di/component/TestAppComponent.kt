@@ -16,7 +16,8 @@ import me.edujtm.tuyo.di.modules.FakePersistenceModule
     TestMainActivityComponent.InstallModule::class
 ])
 interface TestAppComponent : AppComponent {
-    val activityInjectorFactory: TestMainActivityComponent.Factory
+
+    override val mainActivityInjector: TestMainActivityComponent.Factory
 
     @Component.Factory
     interface Factory {

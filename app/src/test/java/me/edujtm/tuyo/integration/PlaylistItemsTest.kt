@@ -4,18 +4,19 @@ import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.Fake
+import me.edujtm.tuyo.InMemoryPlaylistItemDao
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
+import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
-import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -32,22 +33,26 @@ class PlaylistItemsTest {
     val testCoroutineRule = CoroutineTestRule(TestCoroutineDispatcher())
 
     val playlistsIds = Fake.primaryPlaylistsIds().first()
+
+    val PAGE_SIZE = 40
     val pageTokens = setOf("a", "b", "c", "d")
-    val pagedPlaylist = Fake.pagedData(pageTokens) { currentToken, nextToken ->
+    val pagedPlaylist = Fake.pagedData(pageTokens) { _, nextToken ->
         Fake.playlistItem(
-            id = playlistsIds.likedVideos,
+            playlistId = playlistsIds.likedVideos,
             nextPageToken = nextToken
-        ).take(40).toList()
+        ).take(PAGE_SIZE).toList()
     }
 
     val userEndpoint = mockk<UserEndpoint>()
     val playlistEndpoint = mockk<PlaylistEndpoint>()
-    val playlistDb = mockk<PlaylistItemDao>()
 
+    private lateinit var playlistDb : InMemoryPlaylistItemDao
     private lateinit var viewModel: PlaylistItemsViewModel
 
     @Before
     fun setUp() {
+        playlistDb = InMemoryPlaylistItemDao()
+        playlistDb.onStart()
         val repo = YoutubePlaylistRepository(
             userEndpoint,
             playlistEndpoint,
@@ -57,39 +62,108 @@ class PlaylistItemsTest {
         viewModel = PlaylistItemsViewModel(repo, testCoroutineRule.testDispatchers)
     }
 
+    @After
+    fun tearDown() {
+        playlistDb.onDestroy()
+    }
+
     @Test
     fun `should retrieve playlist items from network when database is empty`() =
         testCoroutineRule.testDispatcher.runBlockingTest {
             // The API endpoint returns a paginated playlist
-            every { playlistEndpoint.getPlaylistById(any(), any()) } answers {
-                pagedPlaylist[secondArg()] ?: error("Could not get playlist from endpoint")
-            }
-            // The values are inserted into the db
-            coEvery { playlistDb.insertAll(any()) } just Runs
-
-            every { playlistDb.playlistItemsFlow(playlistsIds.likedVideos) } returns flow {
-                emit(emptyList())
-                // Simulates network request
-                delay(200)
-                emit(pagedPlaylist[null]!!.data)
+            coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
+                // Simulates a network request
+                delay(300)
+                pagedPlaylist[secondArg()] ?: error("Test error: could not get paginated data")
             }
 
             val selectedPlaylist = SelectedPlaylist.Extra(playlistsIds.likedVideos)
 
             // WHEN: A playlist is requested from the UI
-            launch { viewModel.getPlaylist(selectedPlaylist) }
+             val job = launch { viewModel.getPlaylist(selectedPlaylist) }
 
-            // THEN: No values returns from the database
+            // THEN: No values returns from the database initially
             Assert.assertTrue(viewModel.playlistItems.value.isEmpty())
 
             // A network request is made to retrieve more items
-            verify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
+            coVerify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
 
             // after the request returns
             advanceTimeBy(300)
 
             // THEN: the first page retrieved is available to the UI
             val playlistItems = viewModel.playlistItems.value
-            Assert.assertTrue(playlistItems.size == 40)
+            Assert.assertTrue(
+                "Wrong playlist items size after network request",
+                playlistItems.size == PAGE_SIZE
+            )
+
+            // The database flow emits forever, so it needs to be cancelled
+            job.cancel()
+            job.join()
     }
+
+    @Test
+    fun `should retrieve primary playlists ids when given a SelectedPlaylist Primary ID`() =
+        testCoroutineRule.testDispatcher.runBlockingTest {
+            coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
+                pagedPlaylist[secondArg()] ?: error("Test error: could not get paginated data")
+            }
+
+            coEvery { userEndpoint.getPrimaryPlaylistsIds() } returns playlistsIds
+
+            // WHEN: user specifies a primary playlist
+            val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)
+            val job = launch { viewModel.getPlaylist(selectedPlaylist) }
+
+            // The primary playlist ids should be retrieved
+            coVerify {
+                userEndpoint.getPrimaryPlaylistsIds()
+            }
+
+            // The database flow emits forever, so it needs to be cancelled
+            job.cancel()
+            job.join()
+    }
+
+    @Test
+    fun `should retrieve all pages when calling requestPlaylistItems`() =
+        testCoroutineRule.testDispatcher.runBlockingTest {
+            coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
+                delay(100)
+                pagedPlaylist[secondArg()] ?: error("Test error: could not get paginated data")
+            }
+
+            // The user selects some playlist
+            val selectedPlaylist = SelectedPlaylist.Extra(playlistsIds.likedVideos)
+
+            val uiJob = launch {
+                viewModel.getPlaylist(selectedPlaylist)
+            }
+
+            // WHEN: request are made for different page tokens
+            val allTokens = pageTokens + (null as String?)
+            val requestJob = launch {
+                for (token in allTokens) {
+                    viewModel.requestPlaylistItems(selectedPlaylist, token)
+                }
+            }
+
+            Assert.assertTrue(
+                "Wrong playlist items initial size",
+                viewModel.playlistItems.value.isEmpty()
+            )
+
+            // After all the request are Done
+            advanceTimeBy(500)
+
+            Assert.assertTrue(
+                "Wrong playlist items size after retrieving from network",
+                viewModel.playlistItems.value.size == allTokens.size * PAGE_SIZE
+            )
+
+            // The database emits forever so it needs to be cancelled
+            uiJob.cancel()
+            uiJob.join()
+        }
 }

@@ -11,7 +11,7 @@ interface PlaylistItemDao {
     suspend fun insertAll(playlistItems: List<PlaylistItem>)
 
     @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId")
-    fun playlistItemsFlow(playlistId: String): Flow<List<PlaylistItem>>
+    fun getPlaylistItemsById(playlistId: String): Flow<List<PlaylistItem>>
 
     @Query("DELETE FROM  playlist_items WHERE playlistId = :playlistId")
     fun deletePlaylist(playlistId: String)

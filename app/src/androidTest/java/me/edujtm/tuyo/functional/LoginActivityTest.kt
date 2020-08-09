@@ -65,6 +65,7 @@ class LoginActivityTest {
         // And a error snackbar should be shown to the user
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText("Authentication error")))
+
     }
 
     private fun createAccountPickerErrorStub(): Instrumentation.ActivityResult {

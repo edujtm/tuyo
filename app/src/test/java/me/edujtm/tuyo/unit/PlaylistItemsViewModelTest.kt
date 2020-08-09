@@ -18,7 +18,8 @@ import org.junit.Test
 
 
 /**
- * These tests might be useless, but I'll leave them here for now until I know better
+ * These tests might be useless but I'm not experienced enough with testing to know.
+ * I'll leave them here for now until I know better
  */
 @ExperimentalCoroutinesApi
 @FlowPreview

@@ -4,7 +4,7 @@ import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 
 interface PlaylistEndpoint {
-    fun getPlaylistById(
+    suspend fun getPlaylistById(
         id: String,
         token: String? = null,
         pageSize: Long = 40

@@ -30,6 +30,6 @@ class YoutubePlaylistRepository
         }
 
     override fun getPlaylist(playlistId: String): Flow<List<PlaylistItem>> {
-        return playlistItemDao.playlistItemsFlow(playlistId)
+        return playlistItemDao.getPlaylistItemsById(playlistId)
     }
 }

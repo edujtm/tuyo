@@ -10,7 +10,7 @@ import javax.inject.Inject
 class FakePlaylistEndpoint
     @Inject constructor() : PlaylistEndpoint {
 
-    override fun getPlaylistById(
+    override suspend fun getPlaylistById(
         id: String,
         token: String?,
         pageSize: Long

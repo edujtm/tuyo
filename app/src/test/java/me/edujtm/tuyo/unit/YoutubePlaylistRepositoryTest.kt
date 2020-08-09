@@ -35,20 +35,20 @@ class YoutubePlaylistRepositoryTest {
     @Test
     fun test_request_playlist_item_should_put_items_into_db() = runBlockingTest {
         val playlistId = primaryPlaylists.likedVideos
-        val items = Fake.playlistItem(id = playlistId).take(40).toList()
+        val items = Fake.playlistItem(playlistId = playlistId).take(40).toList()
         val fakePage = PagedData(
             data = items,
             prevPageToken = null as String?,
             nextPageToken = null as String?
         )
-        every { playlistEndpoint.getPlaylistById(playlistId, any()) } returns fakePage
+        coEvery { playlistEndpoint.getPlaylistById(playlistId, any()) } returns fakePage
         coEvery { playlistItemDb.insertAll(any()) } just Runs
 
         // WHEN: requesting more items
         repo.requestPlaylistItems(playlistId)
 
         // THEN: the playlist endpoint should be called
-        verify { playlistEndpoint.getPlaylistById(playlistId, any()) }
+        coVerify { playlistEndpoint.getPlaylistById(playlistId, any()) }
         coVerify { playlistItemDb.insertAll(any()) }
     }
 
