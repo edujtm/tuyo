@@ -51,7 +51,7 @@ class MainActivityTest {
     @Test
     fun test_user_is_able_to_logout_on_menu_item() {
         // The user navigates to main activity on the HomeFragment
-        onView(withId(R.id.text_home))
+        onView(withId(R.id.playlist_header_list))
             .check(matches(isDisplayed()))
 
         // WHEN: clicking in the logout menu item
@@ -65,7 +65,7 @@ class MainActivityTest {
     @Test
     fun test_user_can_access_liked_videos_on_drawer() {
         // User starts navigation on home fragment
-        onView(withId(R.id.text_home)).check(matches(isDisplayed()))
+        onView(withId(R.id.playlist_header_list)).check(matches(isDisplayed()))
 
         // The drawer is currently closed
         onView(withId(R.id.drawer_layout))

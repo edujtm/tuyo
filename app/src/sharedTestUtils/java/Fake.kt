@@ -1,10 +1,15 @@
 package me.edujtm.tuyo
 
+import me.edujtm.tuyo.auth.GoogleAccount
+import me.edujtm.tuyo.data.model.PlaylistHeaderDB
+import me.edujtm.tuyo.data.model.PlaylistHeaderJson
 import me.edujtm.tuyo.data.model.PlaylistItem
 import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
 import me.edujtm.tuyo.domain.domainmodel.PagedData
+import me.edujtm.tuyo.domain.domainmodel.PlaylistHeader
 import kotlin.random.Random
 import kotlin.random.nextInt
+import kotlin.random.nextLong
 
 object Fake {
 
@@ -63,6 +68,53 @@ object Fake {
         val lastPage = pageInitializer(currentToken, null)
         pages[currentToken] = PagedData(lastPage, currentToken, null)
         return pages
+    }
+
+    val FAKE_ACCOUNT = GoogleAccount(
+        id = "super-random-id",
+        email = "example.user@gmail.com",
+        displayName = "Eduardo Macedo",
+        photoUrl = "https://placekitten.com/200/200"
+    )
+
+    object Domain {
+        fun playlistHeader(token: String? = null) = generateSequence {
+            PlaylistHeader(
+                id = strings(size = 10).first(),
+                title = strings(size = 10).first(),
+                thumbnailUrl = imageUrl().first(),
+                publishedAt = strings(size = 10).first(),
+                itemCount = random.nextLong(10L..100L),
+                nextPageToken = token ?: strings(size = 6).first()
+            )
+        }
+    }
+
+    object Network {
+        fun playlistHeader(nextPageToken: String? = null) = generateSequence {
+            PlaylistHeaderJson(
+                id = strings(size = 10).first(),
+                title = strings(size = 10).first(),
+                itemCount = random.nextLong(10L..100L),
+                publishedAt = strings(size= 10).first(),
+                thumbnail = imageUrl().first(),
+                nextPageToken = nextPageToken ?: strings(size = 6).first()
+            )
+        }
+    }
+
+    object Database {
+        fun playlistHeader(userId: String? = null, token: String? = null) = generateSequence {
+            PlaylistHeaderDB(
+                id = strings(size = 10).first(),
+                ownerId = userId ?: strings(size = 10).first(),
+                title = strings(size = 10).first(),
+                itemCount = random.nextLong(10L..100L),
+                publishedAt = strings(size= 10).first(),
+                thumbnailUrl = imageUrl().first(),
+                nextPageToken = token ?: strings(size = 6).first()
+            )
+        }
     }
 }
 
