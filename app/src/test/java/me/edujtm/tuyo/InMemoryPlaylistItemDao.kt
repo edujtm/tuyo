@@ -6,8 +6,7 @@ import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import me.edujtm.tuyo.data.model.PlaylistItem
+import me.edujtm.tuyo.data.model.PlaylistItemDB
 import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 
 /**
@@ -18,7 +17,7 @@ import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 @FlowPreview
 class InMemoryPlaylistItemDao : PlaylistItemDao {
 
-    val items = mutableListOf<PlaylistItem>()
+    val items = mutableListOf<PlaylistItemDB>()
 
     /**
      * Emits all the playlist items on the database, not only the
@@ -31,7 +30,7 @@ class InMemoryPlaylistItemDao : PlaylistItemDao {
         dataEmitter.offer(items)
     }
 
-    override suspend fun insertAll(playlistItems: List<PlaylistItem>) {
+    override suspend fun insertAll(playlistItems: List<PlaylistItemDB>) {
         if (playlistItems.isNotEmpty()) {
             for (item in playlistItems) {
                 items.removeIf { it.id == item.id }
@@ -41,7 +40,7 @@ class InMemoryPlaylistItemDao : PlaylistItemDao {
         }
     }
 
-    override suspend fun deletePlaylistItem(playlistItem: PlaylistItem) {
+    override suspend fun deletePlaylistItem(playlistItem: PlaylistItemDB) {
         items.removeIf { it.id == playlistItem.id }
         dataEmitter.offer(items)
     }
@@ -50,7 +49,7 @@ class InMemoryPlaylistItemDao : PlaylistItemDao {
      * Gets a Hot Flow that only emits the items of the playlist identified
      * by [playlistId].
      */
-    override fun getPlaylistItemsById(playlistId: String): Flow<List<PlaylistItem>> {
+    override fun getPlaylistItemsById(playlistId: String): Flow<List<PlaylistItemDB>> {
         return dataEmitter.asFlow()
             .map {
                 it.filter { playlistItem -> playlistItem.playlistId == playlistId}

@@ -11,10 +11,10 @@ import me.edujtm.tuyo.data.model.PlaylistHeaderJson
 import me.edujtm.tuyo.data.persistence.PlaylistHeaderDao
 import me.edujtm.tuyo.domain.DispatcherProvider
 import me.edujtm.tuyo.domain.Mapper
+import me.edujtm.tuyo.domain.domainmodel.PagedData
 import me.edujtm.tuyo.domain.domainmodel.PlaylistHeader
 import javax.inject.Inject
 
-// TODO: review if injecting the AuthManager is a good idea
 class YoutubePlaylistHeaderRepository
     @Inject constructor(
         val userEndpoint: UserEndpoint,
@@ -58,10 +58,9 @@ class YoutubePlaylistHeaderRepository
         }
     }
 
-    // TODO: Fix this monstrosity
     private val networkToDatabase : Mapper<Pair<PlaylistHeaderJson, String>, PlaylistHeaderDB> =
-        { context: Pair<PlaylistHeaderJson, String>  ->
-            val (json, userId) = context;
+        { context ->
+            val (json, userId) = context
             PlaylistHeaderDB(
                 id = json.id,
                 ownerId = userId,

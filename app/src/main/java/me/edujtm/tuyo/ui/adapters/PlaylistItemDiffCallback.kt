@@ -1,7 +1,7 @@
 package me.edujtm.tuyo.ui.adapters
 
 import androidx.recyclerview.widget.DiffUtil
-import me.edujtm.tuyo.data.model.PlaylistItem
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 
 class PlaylistItemDiffCallback: DiffUtil.ItemCallback<PlaylistItem>() {
     override fun areItemsTheSame(

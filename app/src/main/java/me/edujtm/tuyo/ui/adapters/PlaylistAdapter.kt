@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import me.edujtm.tuyo.data.model.PlaylistItem
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.databinding.PlaylistItemBinding
 
 typealias OnItemClick<T> = (T) -> Unit
 
 /**
  * This will be the main adapter for playlist videos list. It'll be used by
- * LikedVideosFragment, PlaylistDetails, etc.
+ * PlaylistItemsFragment etc.
  */
 class PlaylistAdapter(
     val context: Context,
@@ -25,7 +25,7 @@ class PlaylistAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = PlaylistItemBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding, context, onItemClickListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -36,9 +36,10 @@ class PlaylistAdapter(
         }
     }
 
-    // TODO: refactor inner class
-    inner class ViewHolder(
-        val binding: PlaylistItemBinding
+    class ViewHolder(
+        val binding: PlaylistItemBinding,
+        val context: Context,
+        val onItemClickListener: OnItemClick<PlaylistItem>? = null
     ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
         var playlistItem: PlaylistItem? = null
@@ -57,7 +58,7 @@ class PlaylistAdapter(
             binding.playlistTitleTv.text = item.title
 
             Glide.with(context)
-                .load(item.thumbnail)
+                .load(item.thumbnailUrl)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.videoThumbnailIv)

@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.data.model.*
 import me.edujtm.tuyo.domain.DispatcherProvider
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext

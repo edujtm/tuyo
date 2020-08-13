@@ -37,7 +37,7 @@ class PlaylistItemsTest {
     val PAGE_SIZE = 40
     val pageTokens = setOf("a", "b", "c", "d")
     val pagedPlaylist = Fake.pagedData(pageTokens) { _, nextToken ->
-        Fake.playlistItem(
+        Fake.Network.playlistItem(
             playlistId = playlistsIds.likedVideos,
             nextPageToken = nextToken
         ).take(PAGE_SIZE).toList()

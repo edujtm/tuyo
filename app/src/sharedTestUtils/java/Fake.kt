@@ -1,10 +1,8 @@
 package me.edujtm.tuyo
 
 import me.edujtm.tuyo.auth.GoogleAccount
-import me.edujtm.tuyo.data.model.PlaylistHeaderDB
-import me.edujtm.tuyo.data.model.PlaylistHeaderJson
-import me.edujtm.tuyo.data.model.PlaylistItem
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.data.model.*
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import me.edujtm.tuyo.domain.domainmodel.PlaylistHeader
 import kotlin.random.Random
@@ -38,7 +36,7 @@ object Fake {
             description = strings(size = 20).first(),
             playlistId = playlistId ?: strings(size = 10).first(),
             videoId = strings(size = 10).first(),
-            thumbnail = imageUrl().first(),
+            thumbnailUrl = imageUrl().first(),
             nextPageToken = nextPageToken
         )
     }
@@ -52,10 +50,10 @@ object Fake {
         )
     }
 
-    fun <T> pagedData(tokens: Set<String>, pageInitializer: (String?, String?) -> T)
-            : Map<String?, PagedData<T, String?>> {
+    fun <T> pagedData(tokens: Set<String>, pageInitializer: (String?, String?) -> List<T>)
+            : Map<String?, PagedData<T>> {
         var currentToken : String? = null
-        val pages = HashMap<String?, PagedData<T, String?>>()
+        val pages = HashMap<String?, PagedData<T>>()
 
         // Add first and middle pages
         for (nextToken in tokens) {
@@ -101,6 +99,19 @@ object Fake {
                 nextPageToken = nextPageToken ?: strings(size = 6).first()
             )
         }
+
+        fun playlistItem(playlistId: String? = null, nextPageToken: String? = null) = generateSequence {
+            PlaylistItemJson(
+                id = strings(size = 10).first(),
+                channelId = strings(size = 10).first(),
+                title = strings(size = 20).first(),
+                description = strings(size = 20).first(),
+                playlistId = playlistId ?: strings(size = 10).first(),
+                videoId = strings(size = 10).first(),
+                thumbnailUrl = imageUrl().first(),
+                nextPageToken = nextPageToken
+            )
+        }
     }
 
     object Database {
@@ -113,6 +124,19 @@ object Fake {
                 publishedAt = strings(size= 10).first(),
                 thumbnailUrl = imageUrl().first(),
                 nextPageToken = token ?: strings(size = 6).first()
+            )
+        }
+
+        fun playlistItem(playlistId: String? = null, nextPageToken: String? = null) = generateSequence {
+            PlaylistItemDB(
+                id = strings(size = 10).first(),
+                channelId = strings(size = 10).first(),
+                title = strings(size = 20).first(),
+                description = strings(size = 20).first(),
+                playlistId = playlistId ?: strings(size = 10).first(),
+                videoId = strings(size = 10).first(),
+                thumbnailUrl = imageUrl().first(),
+                nextPageToken = nextPageToken
             )
         }
     }

@@ -33,9 +33,9 @@ class HomeFragment : Fragment() {
     private var headerAdapter: PlaylistHeaderAdapter? = null
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val binds = FragmentHomeBinding.inflate(inflater, container, false)
         ui = binds
@@ -89,7 +89,6 @@ class HomeFragment : Fragment() {
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
             paginator.events.collectLatest {
-                Log.d("HOME_PAGINATOR", "Received event ${it.first}")
                 val currentToken = headerAdapter?.headers?.lastOrNull()?.nextPageToken
                 currentToken?.let {
                     homeViewModel.requestPlaylistHeaders(currentToken)

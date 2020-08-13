@@ -2,7 +2,7 @@ package me.edujtm.tuyo.fakes
 
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
-import me.edujtm.tuyo.data.model.PlaylistItem
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import javax.inject.Inject
 

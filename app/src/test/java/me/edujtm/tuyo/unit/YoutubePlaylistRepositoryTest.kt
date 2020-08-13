@@ -36,7 +36,7 @@ class YoutubePlaylistRepositoryTest {
     fun `request playlist item should put items into db`() =
         testCoroutineRule.testDispatcher.runBlockingTest {
         val playlistId = primaryPlaylists.likedVideos
-        val items = Fake.playlistItem(playlistId = playlistId).take(40).toList()
+        val items = Fake.Network.playlistItem(playlistId = playlistId).take(40).toList()
         val fakePage = PagedData(
             data = items,
             prevPageToken = null as String?,
