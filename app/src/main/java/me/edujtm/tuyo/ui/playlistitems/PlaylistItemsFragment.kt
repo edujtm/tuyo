@@ -6,10 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -23,10 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
-import me.edujtm.tuyo.common.activityInjector
-import me.edujtm.tuyo.common.activityViewModel
-import me.edujtm.tuyo.common.startImplicit
-import me.edujtm.tuyo.common.viewModel
+import me.edujtm.tuyo.common.*
 import me.edujtm.tuyo.data.model.SelectedPlaylist
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
@@ -35,7 +29,7 @@ import java.io.IOException
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-class PlaylistItemsFragment : Fragment() {
+class PlaylistItemsFragment : Fragment(R.layout.fragment_playlist_items) {
 
     private val mainViewModel: MainViewModel by activityViewModel {
             activityInjector.mainViewModel
@@ -54,18 +48,7 @@ class PlaylistItemsFragment : Fragment() {
     }
 
     private var playlistAdapter: PlaylistAdapter? = null
-    private var ui: FragmentPlaylistItemsBinding? = null
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        val binds = FragmentPlaylistItemsBinding.inflate(inflater, container, false)
-        ui = binds
-        Log.d("UI_PLAYLIST_ITEMS", "Created binding")
-        return binds.root
-    }
+    private val ui: FragmentPlaylistItemsBinding by viewBinding(FragmentPlaylistItemsBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,7 +64,7 @@ class PlaylistItemsFragment : Fragment() {
 
         val listManager = LinearLayoutManager(hostActivity)
         val paginator = FlowPaginator(listManager)
-        with(ui!!.playlistRecyclerView) {
+        with(ui.playlistRecyclerView) {
             layoutManager = listManager
             adapter = playlistAdapter
             addItemDecoration(decoration)
@@ -94,7 +77,6 @@ class PlaylistItemsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        ui = null
         playlistAdapter = null
         super.onDestroyView()
     }
@@ -152,19 +134,14 @@ class PlaylistItemsFragment : Fragment() {
                     403 -> "API limit exceeded"
                     else -> error.localizedMessage
                 }
-
-                ui?.let {
-                    Snackbar.make(it.root, message, Snackbar.LENGTH_LONG).show()
-                }
+                Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
             }
             else -> {
-                ui?.let {
-                    Snackbar.make(
-                        it.root,
-                        getString(R.string.generic_error_message, error.message),
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                Snackbar.make(
+                    ui.root,
+                    getString(R.string.generic_error_message, error.message),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
     }

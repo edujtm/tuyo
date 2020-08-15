@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     @Inject lateinit var authManager: AuthManager
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var ui : ActivityMainBinding
 
     override val activityInjector: MainActivityComponent by lazy {
         injector.mainActivityInjector
@@ -47,11 +46,11 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     }
 
     private val mainViewModel : MainViewModel by viewModel { activityInjector.mainViewModel }
+    private val ui : ActivityMainBinding by viewBinding(ActivityMainBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         activityInjector.inject(this)
         super.onCreate(savedInstanceState)
-        ui = ActivityMainBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
         // --- UI setup ---

@@ -11,6 +11,7 @@ interface DispatcherProvider {
     val main : CoroutineContext
 }
 
+/** Default implementation used for production code */
 class DefaultDispatcherProvider
     @Inject constructor() : DispatcherProvider {
     override val io = Dispatchers.IO

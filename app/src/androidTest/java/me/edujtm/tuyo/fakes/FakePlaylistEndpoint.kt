@@ -2,6 +2,7 @@ package me.edujtm.tuyo.fakes
 
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
+import me.edujtm.tuyo.data.model.PlaylistItemJson
 import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import javax.inject.Inject
@@ -14,8 +15,8 @@ class FakePlaylistEndpoint
         id: String,
         token: String?,
         pageSize: Long
-    ): PagedData<List<PlaylistItem>, String?> {
-        val items = Fake.playlistItem()
+    ): PagedData<PlaylistItemJson> {
+        val items = Fake.Network.playlistItem()
             .take(pageSize.toInt())
             .toList()
 

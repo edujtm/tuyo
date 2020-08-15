@@ -3,6 +3,7 @@ package me.edujtm.tuyo.ui.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_login.*
@@ -13,17 +14,17 @@ import me.edujtm.tuyo.auth.AuthResult
 import me.edujtm.tuyo.common.GoogleApi
 import me.edujtm.tuyo.common.injector
 import me.edujtm.tuyo.common.startActivity
+import me.edujtm.tuyo.common.viewBinding
 import me.edujtm.tuyo.databinding.ActivityLoginBinding
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity() {
 
     @Inject lateinit var authManager: AuthManager
-    private lateinit var ui: ActivityLoginBinding
+    private val ui: ActivityLoginBinding by viewBinding(ActivityLoginBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ui = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(ui.root)
         injector.inject(this)
 

@@ -20,7 +20,7 @@ class FakeUserEnpoint
 
     // TODO: properly implement this function, so it returns a fixed set rather
     // than random ones
-    override suspend fun getUserPlaylists(token: String?): PagedData<List<PlaylistHeaderJson>, String?> {
+    override suspend fun getUserPlaylists(token: String?): PagedData<PlaylistHeaderJson> {
         val items = Fake.Network.playlistHeader(nextPageToken = null).take(20).toList()
 
         return PagedData(
