@@ -13,6 +13,7 @@ import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.InMemoryPlaylistHeaderDao
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.PlaylistHeaderRepository
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistHeaderRepository
 import me.edujtm.tuyo.ui.home.HomeViewModel
@@ -70,9 +71,10 @@ class PlaylistHeaderTest {
             val job = launch { viewModel.getUserPlaylists() }
 
             // No items are received from DB
+            var items = (viewModel.playlistHeaders.value as RequestState.Success)
             Assert.assertTrue(
                 "HomeViewModel did not start with empty playlist headers",
-                viewModel.playlistHeaders.value.isEmpty()
+                items.data.isEmpty()
             )
 
             // The API is then called
@@ -82,7 +84,11 @@ class PlaylistHeaderTest {
             advanceTimeBy(300)
 
             // THEN: the results should be available for the UI layer
-            Assert.assertTrue(viewModel.playlistHeaders.value.size == PAGE_SIZE)
+            items = (viewModel.playlistHeaders.value as RequestState.Success)
+            Assert.assertTrue(
+                "Playlist quantity after network loading is not correct",
+                items.data.size == PAGE_SIZE
+            )
 
             job.cancel()
             job.join()
@@ -109,7 +115,7 @@ class PlaylistHeaderTest {
             // THEN: The UI receives the data from database
             Assert.assertTrue(
                 "The playlist headers were not retrieved from the database",
-                viewModel.playlistHeaders.value.size == PAGE_SIZE
+                (viewModel.playlistHeaders.value as RequestState.Success).data.size == PAGE_SIZE
             )
 
             job.cancel()
@@ -138,18 +144,20 @@ class PlaylistHeaderTest {
                 }
             }
 
+            var items = (viewModel.playlistHeaders.value as RequestState.Success)
             Assert.assertTrue(
                 "Wrong playlist headers initial size",
-                viewModel.playlistHeaders.value.isEmpty()
+                items.data.isEmpty()
             )
 
             // After the request are retrieved
             advanceTimeBy(500)
 
+            items = (viewModel.playlistHeaders.value as RequestState.Success)
             // THEN: all pages should be retrieved
             Assert.assertTrue(
                 "Wrong playlist headers size after retrieving pages from network",
-                viewModel.playlistHeaders.value.size == PAGE_SIZE * allTokens.size
+                items.data.size == PAGE_SIZE * allTokens.size
             )
 
             uiJob.cancel()

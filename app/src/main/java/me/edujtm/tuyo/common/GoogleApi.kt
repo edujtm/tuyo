@@ -8,6 +8,9 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 
 object GoogleApi {
+    /** Used as the requestCode for the authentication process */
+    const val REQUEST_AUTHORIZATION = 1001
+
     val api = GoogleApiAvailability.getInstance()
 
     fun isAvailable(context: Context) = getAvailabilityStatus(context) is StatusResult.Success

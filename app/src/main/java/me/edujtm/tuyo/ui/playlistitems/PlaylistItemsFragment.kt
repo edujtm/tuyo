@@ -23,12 +23,11 @@ import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.*
 import me.edujtm.tuyo.data.model.SelectedPlaylist
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 import java.io.IOException
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class PlaylistItemsFragment : Fragment(R.layout.fragment_playlist_items) {
 
     private val mainViewModel: MainViewModel by activityViewModel {
@@ -84,43 +83,40 @@ class PlaylistItemsFragment : Fragment(R.layout.fragment_playlist_items) {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_AUTHORIZATION && resultCode == Activity.RESULT_OK) {
-            getPlaylistItems()
+            playlistItemsViewModel.refresh(selectedPlaylist)
         }
     }
 
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                paginator.events.collect {
-                    val pageToken = playlistAdapter?.currentList?.lastOrNull()?.nextPageToken
-                    Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
-                    pageToken?.let { token ->
-                        playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
-                    }
+            paginator.events.collect {
+                val pageToken = playlistAdapter?.currentList?.lastOrNull()?.nextPageToken
+                Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
+                pageToken?.let { token ->
+                    playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
                 }
-            } catch (e: IOException) {
-                handleYoutubeError(e)
             }
         }
     }
 
     private fun bindPlaylistItemsToRecyclerView() {
         viewLifecycleOwner.lifecycleScope.launch {
-            playlistItemsViewModel.playlistItems.collectLatest { playlistItems ->
-                Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistItems.size}")
-                playlistAdapter?.submitList(playlistItems)
+            playlistItemsViewModel.playlistItems.collectLatest { playlistRequest ->
+                when (playlistRequest) {
+                    is RequestState.Loading -> { }
+                    is RequestState.Success -> {
+                        Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistRequest.data.size}")
+                        playlistAdapter?.submitList(playlistRequest.data)
+                    }
+                    is RequestState.Failure -> handleYoutubeError(playlistRequest.error)
+                }
             }
         }
     }
 
     private fun getPlaylistItems() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                playlistItemsViewModel.getPlaylist(selectedPlaylist)
-            } catch (e: IOException) {
-                Log.e("API_ERROR", "Received error: $e")
-                handleYoutubeError(e)
-            }
+            playlistItemsViewModel.getPlaylist(selectedPlaylist)
         }
     }
 

@@ -14,12 +14,14 @@ import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import java.lang.RuntimeException
 
 /**
  * These tests are for the whole Playlist Item infrastructure which includes ViewModel,
@@ -47,7 +49,7 @@ class PlaylistItemsTest {
     val playlistEndpoint = mockk<PlaylistEndpoint>()
 
     private lateinit var playlistDb : InMemoryPlaylistItemDao
-    private lateinit var viewModel: PlaylistItemsViewModel
+    private lateinit var viewModel : PlaylistItemsViewModel
 
     @Before
     fun setUp() {
@@ -82,17 +84,18 @@ class PlaylistItemsTest {
             // WHEN: A playlist is requested from the UI
              val job = launch { viewModel.getPlaylist(selectedPlaylist) }
 
+            // var playlistItems = (viewModel.playlistItems.value as RequestState.Success).data
             // THEN: No values returns from the database initially
-            Assert.assertTrue(viewModel.playlistItems.value.isEmpty())
+            Assert.assertTrue(viewModel.playlistItems.value is RequestState.Success)
 
             // A network request is made to retrieve more items
-            coVerify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
+            // coVerify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
 
             // after the request returns
             advanceTimeBy(300)
 
             // THEN: the first page retrieved is available to the UI
-            val playlistItems = viewModel.playlistItems.value
+            val playlistItems = (viewModel.playlistItems.value as RequestState.Success).data
             Assert.assertTrue(
                 "Wrong playlist items size after network request",
                 playlistItems.size == PAGE_SIZE
@@ -144,7 +147,7 @@ class PlaylistItemsTest {
 
             // WHEN: request are made for different page tokens
             val allTokens = pageTokens + (null as String?)
-            val requestJob = launch {
+            launch {
                 for (token in allTokens) {
                     viewModel.requestPlaylistItems(selectedPlaylist, token)
                 }
@@ -152,7 +155,7 @@ class PlaylistItemsTest {
 
             Assert.assertTrue(
                 "Wrong playlist items initial size",
-                viewModel.playlistItems.value.isEmpty()
+                viewModel.playlistItems.value.sucessfulItems.isEmpty()
             )
 
             // After all the request are Done
@@ -160,11 +163,60 @@ class PlaylistItemsTest {
 
             Assert.assertTrue(
                 "Wrong playlist items size after retrieving from network",
-                viewModel.playlistItems.value.size == allTokens.size * PAGE_SIZE
+                viewModel.playlistItems.value.sucessfulItems.size == allTokens.size * PAGE_SIZE
             )
 
             // The database emits forever so it needs to be cancelled
             uiJob.cancel()
             uiJob.join()
         }
+
+    @Test
+    fun `should transmit API errors to UI layer`() =
+        testCoroutineRule.testDispatcher.runBlockingTest {
+            coEvery { playlistEndpoint.getPlaylistById(any(), any()) } throws RuntimeException("API error")
+
+            val selectedPlaylist = SelectedPlaylist.Extra(playlistsIds.likedVideos)
+            val uiJob = launch {
+                viewModel.requestPlaylistItems(selectedPlaylist)
+            }
+
+            Assert.assertTrue(
+                "Error was not received from the API",
+                viewModel.playlistItems.value is RequestState.Failure
+            )
+
+            // The database emits forever so it needs to be cancelled
+            uiJob.cancel()
+            uiJob.join()
+    }
+
+    @Test
+    fun `getPlaylist should not expose exceptions to UI`() =
+        testCoroutineRule.testDispatcher.runBlockingTest {
+            coEvery { userEndpoint.getPrimaryPlaylistsIds() } throws RuntimeException("API error")
+
+            val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)
+            val uiJob = launch {
+                viewModel.getPlaylist(selectedPlaylist)
+            }
+
+            // THEN: the API is called
+            coVerify { userEndpoint.getPrimaryPlaylistsIds() }
+
+            // A failure is transmitted to the UI
+            Assert.assertTrue(
+                "Error was not received from the API",
+                viewModel.playlistItems.value is RequestState.Failure
+            )
+
+            // No exception is exposed to UI
+
+            // The database emits forever so it needs to be cancelled
+            uiJob.cancel()
+            uiJob.join()
+        }
+
+    private val <T> RequestState<T>.sucessfulItems : T
+        get() = (this as RequestState.Success).data
 }

@@ -15,7 +15,6 @@ import me.edujtm.tuyo.domain.domainmodel.Token
 import javax.inject.Inject
 
 
-// TODO: make the mappers from network -> db and db -> domain
 class YoutubePlaylistRepository
 @Inject constructor(
     val userEndpoint: UserEndpoint,
@@ -43,6 +42,11 @@ class YoutubePlaylistRepository
             }
     }
 
+    override suspend fun deletePlaylist(playlistId: String) {
+        playlistItemDao.deletePlaylist(playlistId)
+    }
+
+    // TODO: handle null cases
     private val networkToDatabase: Mapper<PlaylistItemJson, PlaylistItemDB> = { json ->
         PlaylistItemDB(
             id = json.id,

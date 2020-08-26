@@ -10,4 +10,5 @@ interface PlaylistRepository {
     suspend fun getPrimaryPlaylistsIds(): PrimaryPlaylistsIds
     suspend fun requestPlaylistItems(playlistId: String, token: Token? = null)
     fun getPlaylist(playlistId: String): Flow<List<PlaylistItem>>
+    suspend fun deletePlaylist(playlistId: String)
 }

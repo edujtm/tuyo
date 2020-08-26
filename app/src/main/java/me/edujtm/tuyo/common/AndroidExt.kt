@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
@@ -12,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
@@ -39,6 +42,22 @@ inline fun <reified T : ViewModel> FragmentActivity.viewModel(
 }
 
 /**
+ * Do not use this yet
+ */
+inline fun <reified T: ViewModel> AppCompatActivity.stateViewModel(
+        crossinline provider: (SavedStateHandle) -> T
+) = viewModels<T> {
+        object : AbstractSavedStateViewModelFactory(this, Bundle()) {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel?> create(
+                        key: String,
+                        modelClass: Class<T>,
+                        handle: SavedStateHandle
+                ): T = provider(handle) as T
+        }
+}
+
+/**
  * Abstracts the instantiation of a ViewModel that is scoped to a Fragment
  * while delegating lifecycle management to [ViewModelProvider].
  *
@@ -52,6 +71,22 @@ inline fun <reified T : ViewModel> Fragment.viewModel(
         object: ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T = provider() as T
+        }
+}
+
+/**
+ * Do not use this yet
+ */
+inline fun <reified T : ViewModel> Fragment.stateViewModel(
+        crossinline provider: (SavedStateHandle) -> T
+) = viewModels<T> {
+        object : AbstractSavedStateViewModelFactory(this, arguments ?: Bundle()) {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel?> create(
+                        key: String,
+                        modelClass: Class<T>,
+                        handle: SavedStateHandle
+                ): T = provider(handle) as T
         }
 }
 

@@ -10,6 +10,7 @@ import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
 import org.junit.Assert
@@ -56,7 +57,7 @@ class PlaylistItemsViewModelTest {
 
         // WHEN: requesting a playlist by string ID
         viewModel.getPlaylist(selectedPlaylist)
-        val result = viewModel.playlistItems.value
+        val result = viewModel.playlistItems.value.sucessfulItems
 
         verify { repo.getPlaylist(primaryPlaylistsIds.likedVideos) }
         Assert.assertTrue(playlistItems.hasEqualElementsTo(result) { it.id })
@@ -83,7 +84,7 @@ class PlaylistItemsViewModelTest {
 
         // WHEN: request a primary playlist
         viewModel.getPlaylist(selectedPlaylist)
-        val result = viewModel.playlistItems.value
+        val result = viewModel.playlistItems.value.sucessfulItems
 
         // THEN: the repository should provide the plalyist
         verify { repo.getPlaylist(any()) }
@@ -117,4 +118,7 @@ class PlaylistItemsViewModelTest {
         }
         return true
     }
+
+    private val <T> RequestState<T>.sucessfulItems : T
+        get() = (this as RequestState.Success).data
 }
