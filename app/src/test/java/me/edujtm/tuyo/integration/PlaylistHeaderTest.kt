@@ -20,8 +20,6 @@ import me.edujtm.tuyo.ui.home.HomeViewModel
 import org.junit.*
 
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class PlaylistHeaderTest {
 
     @get:Rule
@@ -59,7 +57,7 @@ class PlaylistHeaderTest {
 
     @Test
     fun `getUserPlaylists should get a page of headers from API when DB is empty`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        coroutineRule.testCoroutineScope.runBlockingTest {
             every { authManager.getUserAccount() } returns Fake.FAKE_ACCOUNT
 
             coEvery { userEndpoint.getUserPlaylists(any()) } coAnswers {
@@ -96,7 +94,7 @@ class PlaylistHeaderTest {
 
     @Test
     fun `getUserPlaylists should not call API if the values are available in the DB`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        coroutineRule.testCoroutineScope.runBlockingTest {
             every { authManager.getUserAccount() } returns Fake.FAKE_ACCOUNT
 
             val dbItems = Fake.Database.playlistHeader(
@@ -124,7 +122,7 @@ class PlaylistHeaderTest {
 
     @Test
     fun `requestPlaylistHeaders should retrieve all pages from network`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        coroutineRule.testCoroutineScope.runBlockingTest {
             every { authManager.getUserAccount() } returns Fake.FAKE_ACCOUNT
 
             coEvery { userEndpoint.getUserPlaylists(any()) } coAnswers {
@@ -167,7 +165,7 @@ class PlaylistHeaderTest {
     @Ignore("This test would be interesting if I had a way to count updates on the StateFlow")
     @Test
     fun `getUserPlaylists should not open multiple subscriptions to DB items`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        coroutineRule.testCoroutineScope.runBlockingTest {
             // SETUP
             every { authManager.getUserAccount() } returns Fake.FAKE_ACCOUNT
 

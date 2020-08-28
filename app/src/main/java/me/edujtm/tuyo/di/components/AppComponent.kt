@@ -6,6 +6,7 @@ import dagger.Component
 import me.edujtm.tuyo.di.modules.AuthModule
 import me.edujtm.tuyo.di.modules.ConcurrencyModule
 import me.edujtm.tuyo.di.modules.PersistenceModule
+import me.edujtm.tuyo.di.qualifier.AppContext
 import me.edujtm.tuyo.ui.login.LoginActivity
 import javax.inject.Singleton
 
@@ -25,7 +26,8 @@ interface AppComponent {
     @Component.Factory
     interface Factory {
         fun create(
-            @BindsInstance applicationContext: Context
+            @BindsInstance @AppContext
+            applicationContext: Context
         ): AppComponent
     }
 }

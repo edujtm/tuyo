@@ -20,17 +20,16 @@ class YoutubeUserEndpoint
                     mine = true
                 }.execute()
 
-            val json = result.items.firstOrNull()
+            val json = result?.items?.firstOrNull() ?:
+                throw IllegalStateException("Couldn't retrieve primary playlists ids")
 
-            json?.let {
-                val playlists = it.contentDetails.relatedPlaylists
-                PrimaryPlaylistsIds(
-                    likedVideos = playlists.likes,
-                    favorites = playlists.favorites,
-                    watchLater = playlists.watchLater,
-                    history = playlists.watchHistory
-                )
-            } ?: throw Exception("Couldn't retrieve primary user playlists")
+            val playlists = json.contentDetails.relatedPlaylists
+            PrimaryPlaylistsIds(
+                likedVideos = playlists.likes,
+                favorites = playlists.favorites,
+                watchLater = playlists.watchLater,
+                history = playlists.watchHistory
+            )
         }
 
     override suspend fun getUserPlaylists(token: Token?): PagedData<PlaylistHeaderJson> =

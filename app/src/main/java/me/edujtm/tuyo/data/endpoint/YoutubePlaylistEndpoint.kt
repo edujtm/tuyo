@@ -24,7 +24,8 @@ class YoutubePlaylistEndpoint
                 pageToken = token
             }.execute()
 
-        val data = result.items.map { PlaylistItemJson.fromYoutubeModel(it, result.nextPageToken) }
+        val data = result.items?.map { PlaylistItemJson.fromYoutubeModel(it, result.nextPageToken) }
+            ?: throw IllegalStateException("Couldn't retrieve playlists due to empty results")
         return@withContext PagedData(
             data = data,
             prevPageToken = result.prevPageToken,

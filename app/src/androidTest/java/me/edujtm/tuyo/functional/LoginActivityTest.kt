@@ -17,10 +17,13 @@ import me.edujtm.tuyo.R
 import me.edujtm.tuyo.ui.login.LoginActivity
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING) // Due to some flakiness in espresso tests
 @RunWith(AndroidJUnit4ClassRunner::class)
 class LoginActivityTest {
 

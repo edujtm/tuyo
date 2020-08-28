@@ -1,12 +1,20 @@
 package me.edujtm.tuyo.fakes
 
 import android.content.Intent
+import android.util.Log
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.AuthResult
 import me.edujtm.tuyo.auth.GoogleAccount
 import javax.inject.Inject
+import javax.inject.Singleton
 
+/**
+ * Singleton is needed because the user [account] is being saved on memory on test.
+ * The production AuthManager uses the google library to manage account sessions,
+ * which keeps the state between multiple instantiation of the AuthManager.
+ */
+@Singleton
 class FakeAuthManager
     @Inject constructor() : AuthManager {
 

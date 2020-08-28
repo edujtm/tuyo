@@ -40,28 +40,28 @@ class PlaylistItemsViewModelTest {
     val viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
 
     @Test
-    fun `getPrimaryPlaylist should set ui state when values are in cache`()
-            = testCoroutineRule.testDispatcher.runBlockingTest {
-        val selectedPlaylist = SelectedPlaylist.Extra(primaryPlaylistsIds.likedVideos)
-        val playlistItems = playlists[primaryPlaylistsIds.likedVideos]!!
+    fun `getPrimaryPlaylist should set ui state when values are in cache`() =
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
+            val selectedPlaylist = SelectedPlaylist.Extra(primaryPlaylistsIds.likedVideos)
+            val playlistItems = playlists[primaryPlaylistsIds.likedVideos]!!
 
-        // GIVEN: values available on the db cache
-        every {
-            playlistRepo.getPlaylist(any())
-        } answers {
-            flowOf(
-                playlists[firstArg()]
-                    ?: error("Error on test setup: accessed non existent playlist")
-            )
+            // GIVEN: values available on the db cache
+            every {
+                playlistRepo.getPlaylist(any())
+            } answers {
+                flowOf(
+                    playlists[firstArg()]
+                        ?: error("Error on test setup: accessed non existent playlist")
+                )
+            }
+
+            // WHEN: requesting a playlist by string ID
+            viewModel.getPlaylist(selectedPlaylist)
+            val result = viewModel.playlistItems.value.sucessfulItems
+
+            verify { playlistRepo.getPlaylist(primaryPlaylistsIds.likedVideos) }
+            Assert.assertTrue(playlistItems.hasEqualElementsTo(result) { it.id })
         }
-
-        // WHEN: requesting a playlist by string ID
-        viewModel.getPlaylist(selectedPlaylist)
-        val result = viewModel.playlistItems.value.sucessfulItems
-
-        verify { playlistRepo.getPlaylist(primaryPlaylistsIds.likedVideos) }
-        Assert.assertTrue(playlistItems.hasEqualElementsTo(result) { it.id })
-    }
 
     @Test
     fun `getPrimaryPlaylist should retrieve correct primary playlist`()

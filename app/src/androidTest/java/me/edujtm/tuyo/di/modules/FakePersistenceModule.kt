@@ -7,6 +7,7 @@ import dagger.Provides
 import me.edujtm.tuyo.data.persistence.PlaylistHeaderDao
 import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.data.persistence.YoutubeDatabase
+import me.edujtm.tuyo.di.qualifier.AppContext
 import javax.inject.Singleton
 
 @Module
@@ -14,7 +15,7 @@ object FakePersistenceModule {
 
     @JvmStatic
     @Provides @Singleton
-    fun provideYoutubeDatabase(context: Context) : YoutubeDatabase {
+    fun provideYoutubeDatabase(@AppContext context: Context) : YoutubeDatabase {
         return Room.inMemoryDatabaseBuilder(context, YoutubeDatabase::class.java).build()
     }
 

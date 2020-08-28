@@ -3,12 +3,9 @@ package me.edujtm.tuyo.ui.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.preference.PreferenceManager
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_login.*
 import me.edujtm.tuyo.MainActivity
-import me.edujtm.tuyo.R
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.AuthResult
 import me.edujtm.tuyo.common.GoogleApi

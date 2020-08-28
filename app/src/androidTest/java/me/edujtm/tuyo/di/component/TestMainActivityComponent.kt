@@ -9,7 +9,7 @@ import me.edujtm.tuyo.di.components.MainActivityComponent
 import me.edujtm.tuyo.di.modules.FakeYoutubeModule
 import me.edujtm.tuyo.di.qualifier.UserEmail
 import me.edujtm.tuyo.ui.home.HomeViewModel
-import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
+import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
 import me.edujtm.tuyo.ui.search.SearchViewModel
 
 @Subcomponent(modules = [
@@ -18,7 +18,7 @@ import me.edujtm.tuyo.ui.search.SearchViewModel
 interface TestMainActivityComponent : MainActivityComponent {
     override val searchViewModel: SearchViewModel
     override val homeViewModel: HomeViewModel
-    override val playlistItemsViewModel: PlaylistItemsViewModel
+    override val playlistViewModel: PlaylistViewModel
     override val mainViewModel: MainViewModel
 
     override fun inject(activity: MainActivity)
@@ -27,7 +27,7 @@ interface TestMainActivityComponent : MainActivityComponent {
     interface Factory : MainActivityComponent.Factory {
         override fun create(
             @BindsInstance @UserEmail userEmail: String
-        ) : MainActivityComponent
+        ) : TestMainActivityComponent
     }
 
     @Module(subcomponents = [TestMainActivityComponent::class])

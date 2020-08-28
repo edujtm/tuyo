@@ -1,6 +1,7 @@
 package me.edujtm.tuyo.integration
 
 import io.mockk.*
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -12,14 +13,12 @@ import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 import me.edujtm.tuyo.domain.repository.YoutubeUserRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import java.lang.RuntimeException
 
 /**
@@ -29,6 +28,7 @@ import java.lang.RuntimeException
  */
 class PlaylistItemsTest {
 
+    @get:Rule
     val testCoroutineRule = CoroutineTestRule(TestCoroutineDispatcher())
 
     val playlistsIds = Fake.primaryPlaylistsIds().first()
@@ -44,6 +44,7 @@ class PlaylistItemsTest {
 
     val userEndpoint = mockk<UserEndpoint>()
     val playlistEndpoint = mockk<PlaylistEndpoint>()
+    val cache = mockk<PrimaryPlaylistPreferences>()
 
     private lateinit var playlistDb : InMemoryPlaylistItemDao
     private lateinit var viewModel : PlaylistViewModel
@@ -57,7 +58,7 @@ class PlaylistItemsTest {
             playlistDb,
             testCoroutineRule.testDispatchers
         )
-        val userRepo = YoutubeUserRepository(userEndpoint)
+        val userRepo = YoutubeUserRepository(userEndpoint, cache)
         viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
     }
 
@@ -68,7 +69,7 @@ class PlaylistItemsTest {
 
     @Test
     fun `should retrieve playlist items from network when database is empty`() =
-        testCoroutineRule.testDispatcher.runBlockingTest {
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
             // The API endpoint returns a paginated playlist
             coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
                 // Simulates a network request
@@ -101,15 +102,17 @@ class PlaylistItemsTest {
             // The database flow emits forever, so it needs to be cancelled
             job.cancel()
             job.join()
-    }
+        }
 
     @Test
     fun `should retrieve primary playlists ids when given a SelectedPlaylist Primary ID`() =
-        testCoroutineRule.testDispatcher.runBlockingTest {
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
             coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
                 pagedPlaylist[secondArg()] ?: error("Test error: could not get paginated data")
             }
 
+            // GIVEN: No value cached
+            coEvery { cache.getPrimaryPlaylistId(PrimaryPlaylist.LIKED_VIDEOS) } returns null
             coEvery { userEndpoint.getPrimaryPlaylistsIds() } returns playlistsIds
 
             // WHEN: user specifies a primary playlist
@@ -124,12 +127,12 @@ class PlaylistItemsTest {
             // The database flow emits forever, so it needs to be cancelled
             job.cancel()
             job.join()
-    }
+        }
 
 
     @Test
     fun `should retrieve all pages when calling requestPlaylistItems`() =
-        testCoroutineRule.testDispatcher.runBlockingTest {
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
             coEvery { playlistEndpoint.getPlaylistById(any(), any()) } coAnswers {
                 delay(100)
                 pagedPlaylist[secondArg()] ?: error("Test error: could not get paginated data")
@@ -170,7 +173,7 @@ class PlaylistItemsTest {
 
     @Test
     fun `should transmit API errors to UI layer`() =
-        testCoroutineRule.testDispatcher.runBlockingTest {
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
             coEvery { playlistEndpoint.getPlaylistById(any(), any()) } throws RuntimeException("API error")
 
             val selectedPlaylist = SelectedPlaylist.Extra(playlistsIds.likedVideos)
@@ -190,7 +193,10 @@ class PlaylistItemsTest {
 
     @Test
     fun `getPlaylist should not expose exceptions to UI`() =
-        testCoroutineRule.testDispatcher.runBlockingTest {
+        testCoroutineRule.testCoroutineScope.runBlockingTest {
+            // GIVEN: No value in cache
+            coEvery { cache.getPrimaryPlaylistId(PrimaryPlaylist.LIKED_VIDEOS) } returns null
+            // GIVEN: a network error happens
             coEvery { userEndpoint.getPrimaryPlaylistsIds() } throws RuntimeException("API error")
 
             val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)

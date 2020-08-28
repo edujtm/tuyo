@@ -5,9 +5,10 @@ import dagger.Module
 import dagger.Provides
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleSignInManager
+import me.edujtm.tuyo.di.qualifier.AppContext
 
 @Module
 object AuthModule {
     @JvmStatic @Provides
-    fun provideAuthManager(context: Context) : AuthManager = GoogleSignInManager(context)
+    fun provideAuthManager(@AppContext context: Context) : AuthManager = GoogleSignInManager(context)
 }

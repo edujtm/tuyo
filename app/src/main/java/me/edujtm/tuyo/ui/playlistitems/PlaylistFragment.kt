@@ -126,6 +126,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
     }
 
     private fun handleYoutubeError(error: Throwable) {
+        Log.e("PLAYLIST_FRAGMENT", "Received error: $error")
         when (error) {
             is GooglePlayServicesAvailabilityIOException -> mainViewModel.checkGoogleApiServices()
             is UserRecoverableAuthIOException -> startActivityForResult(error.intent, REQUEST_AUTHORIZATION)
