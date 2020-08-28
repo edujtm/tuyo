@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="50dp"
-    tools:context=".ui.playlistitems.PlaylistItemsFragment">
+    tools:context=".ui.playlistitems.PlaylistFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist_recycler_view"

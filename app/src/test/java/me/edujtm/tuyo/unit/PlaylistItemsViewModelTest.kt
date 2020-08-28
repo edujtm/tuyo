@@ -11,8 +11,9 @@ import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
 import me.edujtm.tuyo.domain.domainmodel.RequestState
+import me.edujtm.tuyo.domain.repository.UserRepository
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
-import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
+import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -22,8 +23,6 @@ import org.junit.Test
  * These tests might be useless but I'm not experienced enough with testing to know.
  * I'll leave them here for now until I know better
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
 class PlaylistItemsViewModelTest {
 
     @get:Rule
@@ -36,8 +35,9 @@ class PlaylistItemsViewModelTest {
         primaryPlaylistsIds.favorites to Fake.playlistItem(primaryPlaylistsIds.favorites).take(40).toList()
     )
 
-    val repo = mockk<YoutubePlaylistRepository>()
-    val viewModel = PlaylistItemsViewModel(repo, testCoroutineRule.testDispatchers)
+    val playlistRepo = mockk<YoutubePlaylistRepository>()
+    val userRepo = mockk<UserRepository>()
+    val viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
 
     @Test
     fun `getPrimaryPlaylist should set ui state when values are in cache`()
@@ -47,7 +47,7 @@ class PlaylistItemsViewModelTest {
 
         // GIVEN: values available on the db cache
         every {
-            repo.getPlaylist(any())
+            playlistRepo.getPlaylist(any())
         } answers {
             flowOf(
                 playlists[firstArg()]
@@ -59,7 +59,7 @@ class PlaylistItemsViewModelTest {
         viewModel.getPlaylist(selectedPlaylist)
         val result = viewModel.playlistItems.value.sucessfulItems
 
-        verify { repo.getPlaylist(primaryPlaylistsIds.likedVideos) }
+        verify { playlistRepo.getPlaylist(primaryPlaylistsIds.likedVideos) }
         Assert.assertTrue(playlistItems.hasEqualElementsTo(result) { it.id })
     }
 
@@ -70,11 +70,13 @@ class PlaylistItemsViewModelTest {
         val correctPlaylist = playlists[primaryPlaylistsIds.likedVideos]!!
 
         // GIVEN: The API returns the primary IDs correctly
-        coEvery { repo.getPrimaryPlaylistsIds() } returns primaryPlaylistsIds
+        coEvery { userRepo.getPrimaryPlaylistId(any()) } coAnswers {
+            primaryPlaylistsIds.selectPlaylist(firstArg())
+        }
 
         // and values are available in the database cache
         every {
-            repo.getPlaylist(any())
+            playlistRepo.getPlaylist(any())
         } answers {
             flowOf(
                 playlists[firstArg()]
@@ -87,7 +89,7 @@ class PlaylistItemsViewModelTest {
         val result = viewModel.playlistItems.value.sucessfulItems
 
         // THEN: the repository should provide the plalyist
-        verify { repo.getPlaylist(any()) }
+        verify { playlistRepo.getPlaylist(any()) }
         // and the correct playlist is selected
         Assert.assertTrue(correctPlaylist.hasEqualElementsTo(result) { it.id })
     }
@@ -98,12 +100,12 @@ class PlaylistItemsViewModelTest {
         val selectedPlaylist = SelectedPlaylist.Extra(primaryPlaylistsIds.likedVideos)
 
         // GIVEN: no values on the database
-        every { repo.getPlaylist(any()) } returns flowOf(emptyList())
-        coEvery { repo.requestPlaylistItems(primaryPlaylistsIds.likedVideos) } just Runs
+        every { playlistRepo.getPlaylist(any()) } returns flowOf(emptyList())
+        coEvery { playlistRepo.requestPlaylistItems(primaryPlaylistsIds.likedVideos) } just Runs
 
         viewModel.getPlaylist(selectedPlaylist)
 
-        coVerify { repo.requestPlaylistItems(primaryPlaylistsIds.likedVideos) }
+        coVerify { playlistRepo.requestPlaylistItems(primaryPlaylistsIds.likedVideos) }
     }
 
 

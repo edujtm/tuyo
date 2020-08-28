@@ -1,21 +1,16 @@
 package me.edujtm.tuyo.unit
 
 import io.mockk.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
-import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class YoutubePlaylistRepositoryTest {
 
     val testCoroutineRule = CoroutineTestRule(TestCoroutineDispatcher())
@@ -23,10 +18,8 @@ class YoutubePlaylistRepositoryTest {
     val primaryPlaylists = Fake.primaryPlaylistsIds().first()
 
     val playlistEndpoint = mockk<PlaylistEndpoint>()
-    val userEndpoint = mockk<UserEndpoint>()
     val playlistItemDb = mockk<PlaylistItemDao>()
     val repo = YoutubePlaylistRepository(
-        userEndpoint,
         playlistEndpoint,
         playlistItemDb,
         testCoroutineRule.testDispatchers

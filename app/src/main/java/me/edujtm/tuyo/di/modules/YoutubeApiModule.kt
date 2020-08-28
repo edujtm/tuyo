@@ -15,10 +15,7 @@ import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.endpoint.YoutubePlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.YoutubeUserEndpoint
 import me.edujtm.tuyo.di.qualifier.UserEmail
-import me.edujtm.tuyo.domain.repository.PlaylistHeaderRepository
-import me.edujtm.tuyo.domain.repository.PlaylistRepository
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistHeaderRepository
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.domain.repository.*
 
 @Module
 abstract class YoutubeApiModule {
@@ -36,6 +33,10 @@ abstract class YoutubeApiModule {
         repository: YoutubePlaylistRepository
     ): PlaylistRepository
 
+    @Binds
+    abstract fun provideUserRepository(
+        repository: YoutubeUserRepository
+    ): UserRepository
 
     @Binds
     abstract fun providePlaylistHeaderRepository(

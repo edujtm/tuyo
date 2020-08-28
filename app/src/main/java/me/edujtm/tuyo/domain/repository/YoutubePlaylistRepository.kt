@@ -17,16 +17,10 @@ import javax.inject.Inject
 
 class YoutubePlaylistRepository
 @Inject constructor(
-    val userEndpoint: UserEndpoint,
     val playlistEndpoint: PlaylistEndpoint,
     val playlistItemDao: PlaylistItemDao,
     val dispatchers: DispatcherProvider
 ) : PlaylistRepository {
-
-    override suspend fun getPrimaryPlaylistsIds(): PrimaryPlaylistsIds =
-        withContext(dispatchers.io) {
-            return@withContext userEndpoint.getPrimaryPlaylistsIds()
-        }
 
     override suspend fun requestPlaylistItems(playlistId: String, token: Token?) =
         withContext(dispatchers.io) {

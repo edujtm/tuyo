@@ -13,7 +13,6 @@ import me.edujtm.tuyo.domain.repository.PlaylistHeaderRepository
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-@ExperimentalCoroutinesApi
 class HomeViewModel
     @Inject constructor(
         val repo: PlaylistHeaderRepository,
@@ -25,8 +24,7 @@ class HomeViewModel
         get() = job + dispatchers.main
 
     private val _playlistHeaders = MutableStateFlow<RequestState<List<PlaylistHeader>>>(RequestState.Loading)
-    val playlistHeaders : StateFlow<RequestState<List<PlaylistHeader>>>
-        get() = _playlistHeaders
+    val playlistHeaders : StateFlow<RequestState<List<PlaylistHeader>>> = _playlistHeaders
 
     fun requestPlaylistHeaders(token: String? = null) {
         launch {

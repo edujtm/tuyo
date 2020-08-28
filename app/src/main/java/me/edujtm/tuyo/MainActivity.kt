@@ -2,26 +2,17 @@ package me.edujtm.tuyo
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.os.bundleOf
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
@@ -32,7 +23,6 @@ import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.MainActivityComponent
 import me.edujtm.tuyo.ui.login.LoginActivity
 import javax.inject.Inject
-import kotlinx.android.synthetic.main.activity_main.nav_view as navView
 
 class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
@@ -71,26 +61,26 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_home,
-            R.id.navigation_playlist_items,
+            R.id.navigation_playlist,
             R.id.navigation_search
         ), ui.drawerLayout)
 
         val navController = findNavController(R.id.nav_host_fragment)
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-        navView.setNavigationItemSelectedListener { menuItem ->
+        ui.navView.setupWithNavController(navController)
+        ui.navView.setNavigationItemSelectedListener { menuItem ->
             ui.drawerLayout.closeDrawers()
             menuItem.isChecked = true
             when (menuItem.itemId) {
                 R.id.navigation_liked_videos -> {
-                    val direction = MainNavigationDirections.actionViewPlaylistItems(
+                    val direction = MainNavigationDirections.actionViewPlaylist(
                         primaryPlaylist = PrimaryPlaylist.LIKED_VIDEOS
                     )
                     navController.popBackStack(R.id.navigation_home, false)
                     navController.navigate(direction)
                 }
                 R.id.navigation_favorites -> {
-                    val direction = MainNavigationDirections.actionViewPlaylistItems(
+                    val direction = MainNavigationDirections.actionViewPlaylist(
                         primaryPlaylist = PrimaryPlaylist.FAVORITES
                     )
                     navController.popBackStack(R.id.navigation_home, false)

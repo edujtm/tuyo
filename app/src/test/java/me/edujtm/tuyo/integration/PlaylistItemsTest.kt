@@ -1,8 +1,6 @@
 package me.edujtm.tuyo.integration
 
 import io.mockk.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -16,7 +14,8 @@ import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
-import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsViewModel
+import me.edujtm.tuyo.domain.repository.YoutubeUserRepository
+import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -28,8 +27,6 @@ import java.lang.RuntimeException
  * Repository and data layer. They test if the assumptions I have from the UI layer are
  * replicated on the data access layer.
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
 class PlaylistItemsTest {
 
     val testCoroutineRule = CoroutineTestRule(TestCoroutineDispatcher())
@@ -49,19 +46,19 @@ class PlaylistItemsTest {
     val playlistEndpoint = mockk<PlaylistEndpoint>()
 
     private lateinit var playlistDb : InMemoryPlaylistItemDao
-    private lateinit var viewModel : PlaylistItemsViewModel
+    private lateinit var viewModel : PlaylistViewModel
 
     @Before
     fun setUp() {
         playlistDb = InMemoryPlaylistItemDao()
         playlistDb.onStart()
-        val repo = YoutubePlaylistRepository(
-            userEndpoint,
+        val playlistRepo = YoutubePlaylistRepository(
             playlistEndpoint,
             playlistDb,
             testCoroutineRule.testDispatchers
         )
-        viewModel = PlaylistItemsViewModel(repo, testCoroutineRule.testDispatchers)
+        val userRepo = YoutubeUserRepository(userEndpoint)
+        viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
     }
 
     @After
@@ -89,7 +86,7 @@ class PlaylistItemsTest {
             Assert.assertTrue(viewModel.playlistItems.value is RequestState.Success)
 
             // A network request is made to retrieve more items
-            // coVerify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
+            coVerify(exactly = 1) { playlistEndpoint.getPlaylistById(any()) }
 
             // after the request returns
             advanceTimeBy(300)

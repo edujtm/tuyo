@@ -17,6 +17,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.viewbinding.ViewBinding
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.ComponentProvider
@@ -24,13 +25,14 @@ import me.edujtm.tuyo.di.components.ComponentProvider
 /**
  * Abstracts the ViewModel instantiation with the correct lifecycle for an Activity using a custom
  * [ViewModelProvider.Factory] that delegates instantiation to a [provider] factory. The lifecycle
- * is still managed by the [ViewModelProvider].
+ * is still managed by the [ViewModelProvider] using the [ViewModelStore] of the @receiver.
  *
  * This allows for the ViewModel dependencies to be provided by a DI container without having
  * to worry about managing the lifecycle scope.
  *
+ * @receiver Activity whose [ViewModelStore] will be used to persist the ViewModel
  * @param provider a factory function that specifies how to get the ViewModel
- * @return a lazy delegate which allows custom initialization of the ViewModel.
+ * @return a lazy delegate which allows custom initialization of the ViewModel
  */
 inline fun <reified T : ViewModel> FragmentActivity.viewModel(
         crossinline provider: () -> T
@@ -41,10 +43,11 @@ inline fun <reified T : ViewModel> FragmentActivity.viewModel(
         }
 }
 
+// TODO: Review and comment stateViewModel
 /**
  * Do not use this yet
  */
-inline fun <reified T: ViewModel> AppCompatActivity.stateViewModel(
+inline fun <reified T: ViewModel> AppCompatActivity.savedStateViewModel(
         crossinline provider: (SavedStateHandle) -> T
 ) = viewModels<T> {
         object : AbstractSavedStateViewModelFactory(this, Bundle()) {
@@ -77,7 +80,7 @@ inline fun <reified T : ViewModel> Fragment.viewModel(
 /**
  * Do not use this yet
  */
-inline fun <reified T : ViewModel> Fragment.stateViewModel(
+inline fun <reified T : ViewModel> Fragment.savedStateViewModel(
         crossinline provider: (SavedStateHandle) -> T
 ) = viewModels<T> {
         object : AbstractSavedStateViewModelFactory(this, arguments ?: Bundle()) {

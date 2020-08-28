@@ -5,15 +5,17 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.data.model.*
 import me.edujtm.tuyo.domain.DispatcherProvider
-import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
+import me.edujtm.tuyo.domain.domainmodel.Playlist
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
+import me.edujtm.tuyo.domain.repository.UserRepository
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class PlaylistItemsViewModel
+class PlaylistViewModel
     @Inject constructor(
         val playlistRepository: PlaylistRepository,
+        val userRepository: UserRepository,
         val dispatchers: DispatcherProvider
     ) : ViewModel(), CoroutineScope {
 
@@ -22,16 +24,14 @@ class PlaylistItemsViewModel
         get() = job + dispatchers.main
 
     /** Works as a memory cache for the values from the DB */
-    private val _playlistItems = MutableStateFlow<RequestState<List<PlaylistItem>>>(RequestState.Loading)
-    val playlistItems: StateFlow<RequestState<List<PlaylistItem>>>
-        get() =_playlistItems
+    private val _playlistItems = MutableStateFlow<RequestState<Playlist>>(RequestState.Loading)
+    val playlistItems: StateFlow<RequestState<Playlist>> = _playlistItems
 
     fun refresh(selectedPlaylist: SelectedPlaylist) {
         launch {
             val playlistId = when (selectedPlaylist) {
                 is SelectedPlaylist.Primary -> {
-                    val playistIds = playlistRepository.getPrimaryPlaylistsIds()
-                    playistIds.selectPlaylist(selectedPlaylist.playlist)
+                    userRepository.getPrimaryPlaylistId(selectedPlaylist.playlist)
                 }
                 is SelectedPlaylist.Extra -> selectedPlaylist.playlistId
             }
@@ -42,17 +42,14 @@ class PlaylistItemsViewModel
     fun requestPlaylistItems(selectedPlaylist: SelectedPlaylist, pageToken: String? = null) {
         launch {
             try {
-                when (selectedPlaylist) {
+                val playlistId = when (selectedPlaylist) {
                     is SelectedPlaylist.Primary -> {
-                        val playlistIds = playlistRepository.getPrimaryPlaylistsIds()
-                        val playlistId = playlistIds.selectPlaylist(selectedPlaylist.playlist)
-                        playlistRepository.requestPlaylistItems(playlistId, pageToken)
+                        userRepository.getPrimaryPlaylistId(selectedPlaylist.playlist)
                     }
-                    is SelectedPlaylist.Extra -> playlistRepository.requestPlaylistItems(
-                        selectedPlaylist.playlistId,
-                        pageToken
-                    )
+                    is SelectedPlaylist.Extra -> selectedPlaylist.playlistId
                 }
+
+                playlistRepository.requestPlaylistItems(playlistId, pageToken)
             } catch (e: Exception) {
                 // Error on pagination will be treated as playlist error
                 _playlistItems.value = RequestState.Failure(e)
@@ -85,10 +82,9 @@ class PlaylistItemsViewModel
     private fun getPlaylistFlow(playistId: String) = playlistRepository.getPlaylist(playistId)
 
     private fun getPrimaryPlaylistFlow(playlist: PrimaryPlaylist) =
-        flow { emit(playlistRepository.getPrimaryPlaylistsIds()) }
+        flow { emit(userRepository.getPrimaryPlaylistId(playlist)) }
             .flowOn(dispatchers.io)
-            .flatMapConcat { playlistIds ->
-                val playlistId = playlistIds.selectPlaylist(playlist)
+            .flatMapConcat { playlistId ->
                 playlistRepository.getPlaylist(playlistId)
             }
 

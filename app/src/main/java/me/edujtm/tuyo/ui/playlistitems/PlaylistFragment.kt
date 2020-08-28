@@ -21,23 +21,28 @@ import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.*
+import me.edujtm.tuyo.data.model.PrimaryPlaylist
 import me.edujtm.tuyo.data.model.SelectedPlaylist
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
-import java.io.IOException
 
-class PlaylistItemsFragment : Fragment(R.layout.fragment_playlist_items) {
+class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
     private val mainViewModel: MainViewModel by activityViewModel {
             activityInjector.mainViewModel
     }
-    private val playlistItemsViewModel: PlaylistItemsViewModel by viewModel {
-            activityInjector.playlistItemsViewModel
+    private val playlistItemsViewModel: PlaylistViewModel by viewModel {
+            activityInjector.playlistViewModel
     }
 
-    private val args: PlaylistItemsFragmentArgs by navArgs()
+    private val args: PlaylistFragmentArgs by navArgs()
+
+    /**
+     * This fragment can be initialized with either a playlist string ID or
+     * a [PrimaryPlaylist] enum.
+     */
     private val selectedPlaylist: SelectedPlaylist by lazy {
         if (args.playlistId != null) {
             SelectedPlaylist.Extra(args.playlistId!!)

@@ -3,10 +3,7 @@ package me.edujtm.tuyo.ui.home
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -16,9 +13,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
-import kotlinx.android.synthetic.main.fragment_home.view.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.edujtm.tuyo.MainNavigationDirections
@@ -29,10 +23,7 @@ import me.edujtm.tuyo.databinding.FragmentHomeBinding
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistHeaderAdapter
-import me.edujtm.tuyo.ui.playlistitems.PlaylistItemsFragment
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private val mainViewModel: MainViewModel by activityViewModel {
@@ -134,7 +125,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun openPlaylist(playlistId: String) {
-        val playlistItemsDirection = MainNavigationDirections.actionViewPlaylistItems(playlistId = playlistId)
+        val playlistItemsDirection = MainNavigationDirections.actionViewPlaylist(playlistId = playlistId)
         val navController = findNavController()
         navController.navigate(playlistItemsDirection)
     }

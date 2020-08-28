@@ -40,7 +40,7 @@ enum class PrimaryPlaylist {
  * This class helps with some APIs on the UI layer, due to the limitation on
  * on which data [android.os.Bundle] can carry.
  *
- * The [me.edujtm.tuyo.ui.playlistitems.PlaylistItemsFragment] is initialized with
+ * The [me.edujtm.tuyo.ui.playlistitems.PlaylistFragment] is initialized with
  * either a playlist string ID or an [PrimaryPlaylist] enum for the main playlists
  * from YouTube (e.g liked videos, favorites).
  *

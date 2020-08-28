@@ -12,8 +12,8 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_playlist_items"
-        android:name="me.edujtm.tuyo.ui.playlistitems.PlaylistItemsFragment"
+        android:id="@+id/navigation_playlist"
+        android:name="me.edujtm.tuyo.ui.playlistitems.PlaylistFragment"
         android:label="@string/title_playlist_items"
         tools:layout="@layout/fragment_playlist_items">
 
@@ -38,8 +38,8 @@
         tools:layout="@layout/fragment_search" />
 
     <action
-        android:id="@+id/action_view_playlist_items"
-        app:destination="@id/navigation_playlist_items"
+        android:id="@+id/action_view_playlist"
+        app:destination="@id/navigation_playlist"
         />
 
 </navigation>
