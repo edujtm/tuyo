@@ -2,6 +2,7 @@ package me.edujtm.tuyo.integration
 
 import io.mockk.*
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -58,7 +59,7 @@ class PlaylistItemsTest {
             playlistDb,
             testCoroutineRule.testDispatchers
         )
-        val userRepo = YoutubeUserRepository(userEndpoint, cache)
+        val userRepo = YoutubeUserRepository(userEndpoint, cache, testCoroutineRule.testDispatchers)
         viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
     }
 
@@ -100,8 +101,7 @@ class PlaylistItemsTest {
             )
 
             // The database flow emits forever, so it needs to be cancelled
-            job.cancel()
-            job.join()
+            job.cancelAndJoin()
         }
 
     @Test
@@ -125,8 +125,7 @@ class PlaylistItemsTest {
             }
 
             // The database flow emits forever, so it needs to be cancelled
-            job.cancel()
-            job.join()
+            job.cancelAndJoin()
         }
 
 
@@ -167,8 +166,7 @@ class PlaylistItemsTest {
             )
 
             // The database emits forever so it needs to be cancelled
-            uiJob.cancel()
-            uiJob.join()
+            uiJob.cancelAndJoin()
         }
 
     @Test
@@ -187,8 +185,7 @@ class PlaylistItemsTest {
             )
 
             // The database emits forever so it needs to be cancelled
-            uiJob.cancel()
-            uiJob.join()
+            uiJob.cancelAndJoin()
     }
 
     @Test
@@ -216,8 +213,7 @@ class PlaylistItemsTest {
             // No exception is exposed to UI
 
             // The database emits forever so it needs to be cancelled
-            uiJob.cancel()
-            uiJob.join()
+            uiJob.cancelAndJoin()
         }
 
     private val <T> RequestState<T>.sucessfulItems : T

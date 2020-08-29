@@ -22,7 +22,7 @@ class UserRepositoryTest {
     val playlistIds = Fake.primaryPlaylistsIds().first()
     val endpoint = mockk<UserEndpoint>()
     val cache = mockk<PrimaryPlaylistPreferences>()
-    val repo = YoutubeUserRepository(endpoint, cache)
+    val repo = YoutubeUserRepository(endpoint, cache, coroutineRule.testDispatchers)
 
     @Test
     fun `should cache primary playlist ids from user`() =

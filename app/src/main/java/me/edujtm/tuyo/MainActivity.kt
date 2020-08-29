@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -14,6 +15,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.*
@@ -93,11 +96,13 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
 
         // --- listeners ---
 
-        mainViewModel.events.observe(this) { event ->
-            when (event) {
-                // Allows fragments to query for google APIs' status
-                is MainViewModel.Event.CheckGooglePlayServices -> {
-                    checkGoogleApiAvailability()
+        lifecycleScope.launch {
+            mainViewModel.events.consumeEach { event ->
+                when (event) {
+                    // Allows fragments to query for google APIs' status
+                    is MainViewModel.Event.CheckGooglePlayServices -> {
+                        checkGoogleApiAvailability()
+                    }
                 }
             }
         }
