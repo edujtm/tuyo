@@ -19,4 +19,6 @@
     <string name="action_logout">Logout</string>
     <string name="nav_favorites">Favorites</string>
 
+    <!-- Playlist Items Fragment -->
+    <string name="action_copy">Copy</string>
 </resources>

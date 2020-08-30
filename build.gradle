@@ -22,6 +22,7 @@ buildscript {
         playservices_version = '18.1.0'
         room_version = "2.2.5"
         testrunner_version = '1.2.0'
+        timber_version = '4.7.1'
         youtube_version = '1.22.0'
     }
     repositories {

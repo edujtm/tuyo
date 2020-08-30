@@ -6,7 +6,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -27,6 +31,7 @@ import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
+import timber.log.Timber
 
 class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
@@ -53,6 +58,11 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
     private var playlistAdapter: PlaylistAdapter? = null
     private val ui: FragmentPlaylistItemsBinding by viewBinding(FragmentPlaylistItemsBinding::bind)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,16 +97,21 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_AUTHORIZATION && resultCode == Activity.RESULT_OK) {
+        if (requestCode == GoogleApi.REQUEST_AUTHORIZATION && resultCode == Activity.RESULT_OK) {
             playlistItemsViewModel.refresh(selectedPlaylist)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.playlist_item_selected_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
             paginator.events.collect {
                 val pageToken = playlistAdapter?.currentList?.lastOrNull()?.nextPageToken
-                Log.d("FLOW_PAGINATOR", "Trying to get token: $pageToken")
+                Timber.d("Trying to get token: $pageToken")
                 pageToken?.let { token ->
                     playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
                 }
@@ -110,7 +125,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                 when (playlistRequest) {
                     is RequestState.Loading -> { }
                     is RequestState.Success -> {
-                        Log.d("UI_PLAYLIST_ITEMS", "Received data: ${playlistRequest.data.size}")
+                        Timber.d("Received data ${playlistRequest.data.size}")
                         playlistAdapter?.submitList(playlistRequest.data)
                     }
                     is RequestState.Failure -> handleYoutubeError(playlistRequest.error)
@@ -126,10 +141,11 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
     }
 
     private fun handleYoutubeError(error: Throwable) {
-        Log.e("PLAYLIST_FRAGMENT", "Received error: $error")
+        Timber.e("Received error: $error")
         when (error) {
             is GooglePlayServicesAvailabilityIOException -> mainViewModel.checkGoogleApiServices()
-            is UserRecoverableAuthIOException -> startActivityForResult(error.intent, REQUEST_AUTHORIZATION)
+            is UserRecoverableAuthIOException ->
+                startActivityForResult(error.intent, GoogleApi.REQUEST_AUTHORIZATION)
             is GoogleJsonResponseException ->  {
                 // TODO: properly handle API errors
                 val message = when (error.statusCode) {
@@ -149,13 +165,13 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
     }
 
     private fun watchYoutube(context: Context, videoId: String) {
-        val component = context.startImplicit { intent ->
+        val sucessful = context.startImplicit { intent ->
             intent.action = Intent.ACTION_VIEW
             intent.data = Uri.parse("vnd.youtube:$videoId")
         }
 
         // Fallback with webview in case youtube is not installed
-        if (component == null) {
+        if (!sucessful) {
             context.startImplicit { intent ->
                 intent.action = Intent.ACTION_VIEW
                 intent.data = Uri.parse(
@@ -163,9 +179,5 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                 )
             }
         }
-    }
-
-    companion object {
-        const val REQUEST_AUTHORIZATION = 1001
     }
 }

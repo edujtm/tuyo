@@ -43,10 +43,8 @@ inline fun <reified T : ViewModel> FragmentActivity.viewModel(
         }
 }
 
-// TODO: Review and comment stateViewModel
-/**
- * Do not use this yet
- */
+// TODO: Review and comment savedStateViewModel
+@Deprecated("Do not use this yet. it's not tested")
 inline fun <reified T: ViewModel> AppCompatActivity.savedStateViewModel(
         crossinline provider: (SavedStateHandle) -> T
 ) = viewModels<T> {
@@ -77,9 +75,7 @@ inline fun <reified T : ViewModel> Fragment.viewModel(
         }
 }
 
-/**
- * Do not use this yet
- */
+@Deprecated("Do not use this yet. it's not tested")
 inline fun <reified T : ViewModel> Fragment.savedStateViewModel(
         crossinline provider: (SavedStateHandle) -> T
 ) = viewModels<T> {
@@ -124,13 +120,14 @@ inline fun <reified T : Activity> Activity.startActivity(noinline intentAddons: 
  * @param intentAddons lambda function that configures the intent before using it.
  * @return ActivityInfo for the resolved activity.
  */
-fun Context.startImplicit(intentAddons: (Intent) -> Unit) : ActivityInfo? {
+fun Context.startImplicit(intentAddons: (Intent) -> Unit) : Boolean {
         val intent = Intent().apply(intentAddons)
         val activityInfo = intent.resolveActivityInfo(packageManager, intent.flags)
         if (activityInfo != null && activityInfo.exported) {
                 startActivity(intent)
+                return true
         }
-        return activityInfo
+        return false
 }
 
 /**

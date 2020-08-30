@@ -100,7 +100,7 @@ object Fake {
             )
         }
 
-        fun playlistItem(playlistId: String? = null, nextPageToken: String? = null) = generateSequence {
+        fun playlistItem(playlistId: String? = null, nextPageToken: String? = null, imageUrl : String? = null) = generateSequence {
             PlaylistItemJson(
                 id = strings(size = 10).first(),
                 channelId = strings(size = 10).first(),
@@ -108,7 +108,7 @@ object Fake {
                 description = strings(size = 20).first(),
                 playlistId = playlistId ?: strings(size = 10).first(),
                 videoId = strings(size = 10).first(),
-                thumbnailUrl = imageUrl().first(),
+                thumbnailUrl = imageUrl ?: imageUrl().first(),
                 nextPageToken = nextPageToken
             )
         }

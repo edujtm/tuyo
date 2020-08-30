@@ -22,7 +22,6 @@ class HomeFragmentTest {
 
     val itemPosition = 3
 
-
     @get:Rule
     val intentRule = object : IntentsTestRule<MainActivity>(MainActivity::class.java) {
         override fun beforeActivityLaunched() {
