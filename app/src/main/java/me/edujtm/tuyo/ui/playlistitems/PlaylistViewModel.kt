@@ -2,6 +2,8 @@ package me.edujtm.tuyo.ui.playlistitems
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.domain.DispatcherProvider
 import me.edujtm.tuyo.domain.domainmodel.*
@@ -28,6 +30,33 @@ class PlaylistViewModel
     private val _selectedItems = MutableStateFlow(emptySet<String>())
     val selectedItems : StateFlow<Set<String>> = _selectedItems
 
+    private val _inSelectMode = MutableStateFlow(false)
+    val inSelectMode : StateFlow<Boolean> = _inSelectMode
+
+    /** Sends playlist item click command back to the UI, helps with testing */
+    private val _playlistClickCommand = Channel<PlaylistItem>(Channel.UNLIMITED)
+    val playlistClickCommand : ReceiveChannel<PlaylistItem> = _playlistClickCommand
+
+    fun longClickItem(playlistItem: PlaylistItem) {
+        if (inSelectMode.value) {
+            clickItem(playlistItem)
+        } else {
+            _inSelectMode.value = true
+            toggleSelectedItem(playlistItem.id)
+        }
+    }
+
+    fun clickItem(playlistItem: PlaylistItem) {
+        if (inSelectMode.value) {
+            toggleSelectedItem(playlistItem.id)
+            if (selectedItems.value.isEmpty()) {
+                _inSelectMode.value = false
+            }
+        } else {
+            _playlistClickCommand.offer(playlistItem)
+        }
+    }
+
     fun toggleSelectedItem(itemId: String) {
         val items = _selectedItems.value
         if (itemId in items) {
@@ -35,6 +64,10 @@ class PlaylistViewModel
         } else {
             _selectedItems.value = items + itemId
         }
+    }
+
+    fun setInSelectMode(mode: Boolean) {
+        _inSelectMode.value = mode
     }
 
     fun refresh(selectedPlaylist: SelectedPlaylist) {

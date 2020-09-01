@@ -13,8 +13,6 @@ import me.edujtm.tuyo.data.persistence.PlaylistItemDao
  * This is not optimzed in any way, but its only used in tests with minimal amount
  * of data.
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
 class InMemoryPlaylistItemDao : PlaylistItemDao {
 
     val items = mutableListOf<PlaylistItemDB>()

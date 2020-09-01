@@ -7,7 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -18,6 +21,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
@@ -31,7 +35,7 @@ import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
 import timber.log.Timber
 
-class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
+class PlaylistFragment : Fragment(R.layout.fragment_playlist_items), ActionMode.Callback {
 
     private val mainViewModel: MainViewModel by activityViewModel {
             activityInjector.mainViewModel
@@ -41,6 +45,8 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
     }
 
     private val args: PlaylistFragmentArgs by navArgs()
+
+    private var actionMode: ActionMode? = null
 
     /**
      * This fragment can be initialized with either a playlist string ID or
@@ -70,7 +76,7 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
         playlistAdapter = PlaylistAdapter(
             hostActivity,
-            //onItemClickListener = ::watchYoutube,
+            onItemClickListener = ::handleNormalClick,
             onItemLongClickListener = ::handleLongClick
         )
 
@@ -87,7 +93,9 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
         bindPlaylistItemsToRecyclerView()
         getPlaylistItems()
         getSelectedItems()
+        listenForDeleteMode()
         listenForMoreItemRequests(paginator)
+        listenForItemClickCommand()
     }
 
     override fun onDestroyView() {
@@ -102,10 +110,12 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
         }
     }
 
+    /*
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.playlist_item_selected_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
+     */
 
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -116,6 +126,28 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                     playlistItemsViewModel.requestPlaylistItems(selectedPlaylist, token)
                 }
             }
+        }
+    }
+
+    private fun listenForDeleteMode() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            playlistItemsViewModel.inSelectMode.collectLatest {  inDeleteMode ->
+                if (inDeleteMode) {
+                    showDeleteMode()
+                } else {
+                    hideDeleteMode()
+                }
+            }
+        }
+    }
+
+    /**
+     * Annoying to have to go through the viewmodel to call a function,
+     * but this allows for unit testing of clicking behavior. No espresso FTW
+     */
+    private fun listenForItemClickCommand() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            playlistItemsViewModel.playlistClickCommand.consumeEach(::watchYoutube)
         }
     }
 
@@ -148,11 +180,40 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                     adapter.currentList.forEachIndexed { index, playlistItem ->
                         if (playlistItem.id in ids) {
                             adapter.setItemChecked(index, true)
+                        } else if (index in adapter.selectedItems) {
+                            // Syncs deselected items between viewmodel and adapter
+                            adapter.setItemChecked(index, false)
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun showDeleteMode() {
+        val appCompatActivity = (activity as AppCompatActivity)
+        actionMode = appCompatActivity.startSupportActionMode(this)
+        playlistAdapter?.onItemLongClickListener = null
+    }
+
+    private fun hideDeleteMode() {
+        playlistAdapter?.let {
+            it.onItemLongClickListener = ::handleLongClick
+            it.currentList.forEachIndexed { index, _ ->
+                it.setItemChecked(index, false)
+            }
+        }
+        actionMode?.finish()
+    }
+
+    private fun handleNormalClick(playlistItem: PlaylistItem) {
+        Timber.d("Normal click on item: ${playlistItem.title}")
+        playlistItemsViewModel.clickItem(playlistItem)
+    }
+
+    private fun handleLongClick(playlistItem: PlaylistItem) {
+        Timber.d("Long click on item: ${playlistItem.title}")
+        playlistItemsViewModel.longClickItem(playlistItem)
     }
 
     private fun watchYoutube(playlistItem: PlaylistItem) {
@@ -175,8 +236,20 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
         }
     }
 
-    private fun handleLongClick(playlistItem: PlaylistItem) {
-        Timber.d("Long click on item: ${playlistItem.title}")
-        playlistItemsViewModel.toggleSelectedItem(playlistItem.id)
+
+    override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+        return false
+    }
+
+    override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        activity?.menuInflater?.inflate(R.menu.playlist_item_selected_menu, menu)
+        return true
+    }
+
+    override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+    override fun onDestroyActionMode(mode: ActionMode?) {
+        actionMode = null
+        playlistItemsViewModel.setInSelectMode(false)
     }
 }

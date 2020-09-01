@@ -19,7 +19,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
@@ -29,6 +28,7 @@ import me.edujtm.tuyo.databinding.ActivityMainBinding
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.MainActivityComponent
 import me.edujtm.tuyo.ui.login.LoginActivity
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), ActivityComponentProvider {
@@ -162,6 +162,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
     }
 
     private fun handleError(error: Throwable) {
+        Timber.e("Received error: $error")
         when (error) {
             is GooglePlayServicesAvailabilityIOException -> checkGoogleApiAvailability()
             is UserRecoverableAuthIOException ->
@@ -175,6 +176,8 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
                 Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
             }
             else -> {
+                Timber.tag("Unhandled Exception").e("Couldn't handle exception: $error")
+                Timber.tag("Unhandle Exception").v("Exception stacktrace: ${error.readableStackTrace}")
                 Snackbar.make(
                     ui.mainLayout.root,
                     getString(R.string.generic_error_message, error.message),
