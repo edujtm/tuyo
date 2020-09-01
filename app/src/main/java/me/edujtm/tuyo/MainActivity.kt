@@ -15,6 +15,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -100,9 +103,8 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         lifecycleScope.launch {
             mainViewModel.events.consumeEach { event ->
                 when (event) {
-                    // Allows fragments to query for google APIs' status
-                    is MainViewModel.Event.CheckGooglePlayServices -> {
-                        checkGoogleApiAvailability()
+                    is MainViewModel.Event.UiError -> {
+                        handleError(event.error)
                     }
                 }
             }
@@ -155,6 +157,29 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
             is GoogleApi.StatusResult.NotResolvableError -> {
                 Snackbar.make(ui.mainLayout.root, "Google API services are not available", Snackbar.LENGTH_SHORT)
                     .show()
+            }
+        }
+    }
+
+    private fun handleError(error: Throwable) {
+        when (error) {
+            is GooglePlayServicesAvailabilityIOException -> checkGoogleApiAvailability()
+            is UserRecoverableAuthIOException ->
+                startActivityForResult(error.intent, GoogleApi.REQUEST_AUTHORIZATION)
+            is GoogleJsonResponseException ->  {
+                // TODO: properly handle API errors
+                val message = when (error.statusCode) {
+                    403 -> "API limit exceeded"
+                    else -> error.localizedMessage
+                }
+                Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
+            }
+            else -> {
+                Snackbar.make(
+                    ui.mainLayout.root,
+                    getString(R.string.generic_error_message, error.message),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
     }

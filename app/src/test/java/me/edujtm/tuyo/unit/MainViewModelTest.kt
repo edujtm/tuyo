@@ -11,40 +11,16 @@ import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.MainViewModel
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import java.lang.RuntimeException
 
 
 class MainViewModelTest {
 
     @get:Rule
     val coroutineRule = CoroutineTestRule(TestCoroutineDispatcher())
-
-    @Test
-    fun `checkGoogleApiServices should emit event to MainActivity`() =
-        coroutineRule.testCoroutineScope.runBlockingTest {
-            val mainViewModel = MainViewModel()
-            val eventReceived = mutableListOf<MainViewModel.Event>()
-
-            val job = launch {
-                mainViewModel.events.consumeEach { event ->
-                    eventReceived += event
-                }
-            }
-
-            // WHEN: checkGoogleApiServices is called
-            mainViewModel.checkGoogleApiServices()
-
-            // THEN: an event should be sent to the MainViewModel
-            assertEquals(eventReceived.size, 1)
-            Assert.assertThat(
-                eventReceived[0],
-                instanceOf(MainViewModel.Event.CheckGooglePlayServices::class.java)
-            )
-
-            job.cancelAndJoin()
-        }
 
     @Test
     fun `should consume events when subscribers are available (do not re-emit on resubscription)`() =
@@ -61,7 +37,7 @@ class MainViewModelTest {
             }
 
             // GIVEN: an event was emitted
-            mainViewModel.checkGoogleApiServices()
+            mainViewModel.sendEvent(MainViewModel.Event.UiError(RuntimeException("Some event")))
 
             // WHEN: A new subscription is made
             job.cancelAndJoin()
@@ -85,7 +61,7 @@ class MainViewModelTest {
 
             // GIVEN: no subscribers available
             // GIVEN: an event was made
-            mainViewModel.checkGoogleApiServices()
+            mainViewModel.sendEvent(MainViewModel.Event.UiError(RuntimeException("Some event")))
 
             // WHEN: a subscriber starts listening
             val job = launch {
@@ -95,7 +71,7 @@ class MainViewModelTest {
             }
 
             // THEN: the event should be received
-            assertEquals(MainViewModel.Event.CheckGooglePlayServices, events[0])
+            assertThat(events[0], instanceOf(MainViewModel.Event.UiError::class.java))
 
             job.cancelAndJoin()
         }

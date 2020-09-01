@@ -128,7 +128,8 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                         Timber.d("Received data ${playlistRequest.data.size}")
                         playlistAdapter?.submitList(playlistRequest.data)
                     }
-                    is RequestState.Failure -> handleYoutubeError(playlistRequest.error)
+                    is RequestState.Failure ->
+                        mainViewModel.sendEvent(MainViewModel.Event.UiError(playlistRequest.error))
                 }
             }
         }
@@ -150,32 +151,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private fun handleYoutubeError(error: Throwable) {
-        Timber.e("Received error: $error")
-        when (error) {
-            is GooglePlayServicesAvailabilityIOException -> mainViewModel.checkGoogleApiServices()
-            is UserRecoverableAuthIOException ->
-                startActivityForResult(error.intent, GoogleApi.REQUEST_AUTHORIZATION)
-            is GoogleJsonResponseException ->  {
-                // TODO: properly handle API errors
-                val message = when (error.statusCode) {
-                    403 -> "API limit exceeded"
-                    else -> error.localizedMessage
-                }
-                Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
-            }
-            else -> {
-                Timber.tag("Unhandled Error").e("Couldn't handle error: $error")
-                Timber.tag("Unhandled Error").v("Error stacktrace: ${error.stackTrace}")
-                Snackbar.make(
-                    ui.root,
-                    getString(R.string.generic_error_message, error.message),
-                    Snackbar.LENGTH_LONG
-                ).show()
             }
         }
     }

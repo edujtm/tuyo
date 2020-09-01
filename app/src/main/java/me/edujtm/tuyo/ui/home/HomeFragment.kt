@@ -77,7 +77,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             homeViewModel.playlistHeaders.collectLatest { headersRequest ->
                 when (headersRequest) {
                     is RequestState.Success -> headerAdapter?.submitList(headersRequest.data)
-                    is RequestState.Failure -> handleYoutubeError(headersRequest.error)
+                    is RequestState.Failure ->
+                        mainViewModel.sendEvent(MainViewModel.Event.UiError(headersRequest.error))
                     is RequestState.Loading -> {}
                 }
             }
@@ -97,29 +98,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 currentToken?.let {
                     homeViewModel.requestPlaylistHeaders(currentToken)
                 }
-            }
-        }
-    }
-
-    private fun handleYoutubeError(error: Throwable) {
-        when (error) {
-            is GooglePlayServicesAvailabilityIOException -> mainViewModel.checkGoogleApiServices()
-            is UserRecoverableAuthIOException ->
-                startActivityForResult(error.intent, GoogleApi.REQUEST_AUTHORIZATION)
-            is GoogleJsonResponseException ->  {
-                // TODO: properly handle API errors
-                val message = when (error.statusCode) {
-                    403 -> "API limit exceeded"
-                    else -> error.localizedMessage
-                }
-                Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
-            }
-            else -> {
-                Snackbar.make(
-                    ui.root,
-                    getString(R.string.generic_error_message, error.message),
-                    Snackbar.LENGTH_LONG
-                ).show()
             }
         }
     }

@@ -10,10 +10,8 @@ class MainViewModel
     private val eventEmitter = Channel<Event>(Channel.Factory.UNLIMITED)
     val events: ReceiveChannel<Event> = eventEmitter
 
-    // I dislike this implementation, but it was the simplest way to handle the context
-    // necessary for the GoogleApiAvailabity methods without spreading code in the fragments
-    fun checkGoogleApiServices() {
-        eventEmitter.offer(Event.CheckGooglePlayServices)
+    fun sendEvent(event: Event) {
+        eventEmitter.offer(event)
     }
 
     override fun onCleared() {
@@ -21,6 +19,6 @@ class MainViewModel
     }
 
     sealed class Event {
-        object CheckGooglePlayServices : Event()
+        data class UiError(val error: Throwable) : Event()
     }
 }
