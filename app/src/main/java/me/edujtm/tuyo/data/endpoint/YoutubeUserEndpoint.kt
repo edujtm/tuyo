@@ -4,7 +4,7 @@ import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.edujtm.tuyo.data.model.PlaylistHeaderJson
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylistsIds
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import me.edujtm.tuyo.domain.domainmodel.Token
 import javax.inject.Inject

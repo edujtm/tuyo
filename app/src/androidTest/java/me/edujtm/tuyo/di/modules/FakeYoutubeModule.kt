@@ -2,11 +2,12 @@ package me.edujtm.tuyo.di.modules
 
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
-import me.edujtm.tuyo.data.persistence.YoutubeDatabase
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
+import me.edujtm.tuyo.data.repository.YoutubePlaylistHeaderRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.data.repository.YoutubeUserRepository
 import me.edujtm.tuyo.domain.repository.*
 import me.edujtm.tuyo.fakes.FakePlaylistEndpoint
 import me.edujtm.tuyo.fakes.FakePrimaryPlaylistPreferences

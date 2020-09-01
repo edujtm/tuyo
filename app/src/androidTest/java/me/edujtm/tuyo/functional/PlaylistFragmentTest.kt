@@ -5,6 +5,7 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.view.Gravity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions
@@ -22,7 +23,9 @@ import me.edujtm.tuyo.MainActivity
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.fakes.FakeAuthManager
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,19 +52,43 @@ class PlaylistFragmentTest {
         }
     }
 
+    @Before
+    fun setUp() {
+        intending(not(isInternal())).respondWith(Instrumentation.ActivityResult(RESULT_OK, null))
+    }
+
     @Test
-    fun test_long_click_on_item_should_open_action_mode() {
-        mockYoutubeIntent()
+    fun test_can_copy_items_between_multiple_playlists() {
+        //mockYoutubeIntent()
         navigateToPlaylistFragment()
 
         // Not good
         Thread.sleep(1000)
 
+        // Since theres no selected items, no icon is present
+        onView(withId(R.id.action_copy))
+            .check(matches(not(isDisplayed())))
+
         onView(withId(R.id.playlist_recycler_view))
             .perform(actionOnItemAtPosition<PlaylistAdapter.ViewHolder>(1, longClick()))
 
+        // the user tries to copy the items
         onView(withId(R.id.action_copy))
             .check(matches(isDisplayed()))
+            .perform(click())
+
+        // The user navigates to favorites
+        onView(withId(R.id.drawer_layout))
+            .check(matches(DrawerMatchers.isClosed(Gravity.LEFT)))
+            .perform(DrawerActions.open())
+
+        onView(withId(R.id.nav_view))
+            .perform(NavigationViewActions.navigateTo(R.id.navigation_favorites))
+
+        // Since there are items on the clipboard, a paste icon should be visible
+        onView(withId(R.id.action_paste))
+            .check(matches(isDisplayed()))
+            .perform(click())
     }
 
     private fun navigateToPlaylistFragment() {

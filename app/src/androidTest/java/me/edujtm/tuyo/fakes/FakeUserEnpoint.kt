@@ -3,7 +3,7 @@ package me.edujtm.tuyo.fakes
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PlaylistHeaderJson
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylistsIds
 import me.edujtm.tuyo.di.scopes.PerUserSession
 import me.edujtm.tuyo.domain.domainmodel.PagedData
 import javax.inject.Inject

@@ -1,7 +1,7 @@
 package me.edujtm.tuyo.fakes
 
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylistsIds
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
 import javax.inject.Inject
 

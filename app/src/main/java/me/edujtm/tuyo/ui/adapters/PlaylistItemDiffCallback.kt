@@ -9,6 +9,7 @@ class PlaylistItemDiffCallback: DiffUtil.ItemCallback<PlaylistItem>() {
     ): Boolean = oldItem.id == newItem.id
 
     override fun areContentsTheSame(oldItem: PlaylistItem, newItem: PlaylistItem): Boolean {
-        return oldItem.title == newItem.title
+        return (oldItem.title == newItem.title &&
+                oldItem.thumbnailUrl == newItem.thumbnailUrl)
     }
 }

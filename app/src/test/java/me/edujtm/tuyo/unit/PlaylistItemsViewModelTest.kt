@@ -1,18 +1,16 @@
 package me.edujtm.tuyo.unit
 
 import io.mockk.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.Fake
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.SelectedPlaylist
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.domain.repository.UserRepository
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
 import org.junit.Assert
 import org.junit.Rule
@@ -66,7 +64,8 @@ class PlaylistItemsViewModelTest {
     @Test
     fun `getPrimaryPlaylist should retrieve correct primary playlist`()
             = testCoroutineRule.testDispatcher.runBlockingTest {
-        val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)
+        val selectedPlaylist = SelectedPlaylist.Primary(
+            PrimaryPlaylist.LIKED_VIDEOS)
         val correctPlaylist = playlists[primaryPlaylistsIds.likedVideos]!!
 
         // GIVEN: The API returns the primary IDs correctly

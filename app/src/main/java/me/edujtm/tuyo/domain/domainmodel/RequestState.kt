@@ -13,4 +13,12 @@ sealed class RequestState<out T> {
             }
         }
     }
+
+    fun <R> onSuccessMap(transform: (T) -> R) : RequestState<R> {
+        return when (this) {
+            is Success -> Success(transform(this.data))
+            is Failure -> Failure(this.error)
+            is Loading -> Loading
+        }
+    }
 }

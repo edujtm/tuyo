@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -25,9 +22,10 @@ import kotlinx.coroutines.flow.*
 import me.edujtm.tuyo.MainViewModel
 import me.edujtm.tuyo.R
 import me.edujtm.tuyo.common.*
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.SelectedPlaylist
 import me.edujtm.tuyo.databinding.FragmentPlaylistItemsBinding
+import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
 import me.edujtm.tuyo.domain.domainmodel.RequestState
 import me.edujtm.tuyo.ui.adapters.FlowPaginator
 import me.edujtm.tuyo.ui.adapters.PlaylistAdapter
@@ -72,9 +70,9 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
 
         playlistAdapter = PlaylistAdapter(
             hostActivity,
-            onItemClickListener = { playlistItem ->
-                watchYoutube(hostActivity, playlistItem.videoId)
-            })
+            //onItemClickListener = ::watchYoutube,
+            onItemLongClickListener = ::handleLongClick
+        )
 
         val listManager = LinearLayoutManager(hostActivity)
         val paginator = FlowPaginator(listManager)
@@ -85,8 +83,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
             addOnScrollListener(paginator)
         }
 
+
         bindPlaylistItemsToRecyclerView()
         getPlaylistItems()
+        getSelectedItems()
         listenForMoreItemRequests(paginator)
     }
 
@@ -140,6 +140,20 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
         }
     }
 
+    private fun getSelectedItems() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            playlistItemsViewModel.selectedItems.collectLatest { ids ->
+                playlistAdapter?.let { adapter ->
+                    adapter.currentList.forEachIndexed { index, playlistItem ->
+                        if (playlistItem.id in ids) {
+                            adapter.setItemChecked(index, true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun handleYoutubeError(error: Throwable) {
         Timber.e("Received error: $error")
         when (error) {
@@ -155,6 +169,8 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                 Snackbar.make(ui.root, message, Snackbar.LENGTH_LONG).show()
             }
             else -> {
+                Timber.tag("Unhandled Error").e("Couldn't handle error: $error")
+                Timber.tag("Unhandled Error").v("Error stacktrace: ${error.stackTrace}")
                 Snackbar.make(
                     ui.root,
                     getString(R.string.generic_error_message, error.message),
@@ -164,7 +180,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
         }
     }
 
-    private fun watchYoutube(context: Context, videoId: String) {
+    private fun watchYoutube(playlistItem: PlaylistItem) {
+        val context = requireContext()
+        val videoId = playlistItem.videoId
+
         val sucessful = context.startImplicit { intent ->
             intent.action = Intent.ACTION_VIEW
             intent.data = Uri.parse("vnd.youtube:$videoId")
@@ -179,5 +198,10 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items) {
                 )
             }
         }
+    }
+
+    private fun handleLongClick(playlistItem: PlaylistItem) {
+        Timber.d("Long click on item: ${playlistItem.title}")
+        playlistItemsViewModel.toggleSelectedItem(playlistItem.id)
     }
 }

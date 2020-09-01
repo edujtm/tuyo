@@ -1,17 +1,16 @@
-package me.edujtm.tuyo.domain.repository
+package me.edujtm.tuyo.data.repository
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
-import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.data.model.PlaylistItemDB
 import me.edujtm.tuyo.data.model.PlaylistItemJson
 import me.edujtm.tuyo.domain.domainmodel.PlaylistItem
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
 import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.domain.DispatcherProvider
 import me.edujtm.tuyo.domain.Mapper
 import me.edujtm.tuyo.domain.domainmodel.Token
+import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import javax.inject.Inject
 
 
@@ -36,7 +35,7 @@ class YoutubePlaylistRepository
             }
     }
 
-    override suspend fun deletePlaylist(playlistId: String) {
+    override suspend fun refresh(playlistId: String) {
         playlistItemDao.deletePlaylist(playlistId)
     }
 

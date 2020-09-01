@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.data.model
+package me.edujtm.tuyo.domain.domainmodel
 
 /**
  * Represents the IDs of the user's main YouTube playlists.

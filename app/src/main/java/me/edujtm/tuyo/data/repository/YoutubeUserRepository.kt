@@ -1,11 +1,11 @@
-package me.edujtm.tuyo.domain.repository
+package me.edujtm.tuyo.data.repository
 
 import kotlinx.coroutines.withContext
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
 import me.edujtm.tuyo.domain.DispatcherProvider
+import me.edujtm.tuyo.domain.repository.UserRepository
 import javax.inject.Inject
 
 class YoutubeUserRepository

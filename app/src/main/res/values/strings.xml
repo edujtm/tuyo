@@ -20,5 +20,8 @@
     <string name="nav_favorites">Favorites</string>
 
     <!-- Playlist Items Fragment -->
-    <string name="action_copy">Copy</string>
+    <string name="action_copy">Copy Selected</string>
+    <string name="action_cut">Cut Selected</string>
+    <string name="action_delete">Delete Selected</string>
+    <string name="action_paste">Paste</string>
 </resources>

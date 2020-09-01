@@ -1,14 +1,16 @@
-package me.edujtm.tuyo.domain.repository
+package me.edujtm.tuyo.data.repository
 
 import com.google.api.services.youtube.YouTube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.edujtm.tuyo.domain.domainmodel.RequestState
+import me.edujtm.tuyo.domain.repository.VideoRepository
 import javax.inject.Inject
 
 
 class YoutubeVideoRepository
-    @Inject constructor(val youtube: YouTube) : VideoRepository {
+    @Inject constructor(val youtube: YouTube) :
+    VideoRepository {
 
     override suspend fun getVideoInfo(): RequestState<List<String>> = withContext(Dispatchers.IO) {
         val channelInfo = arrayListOf<String>()

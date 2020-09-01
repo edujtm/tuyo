@@ -6,10 +6,10 @@ import kotlinx.coroutines.test.runBlockingTest
 import me.edujtm.tuyo.CoroutineTestRule
 import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylistsIds
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
-import me.edujtm.tuyo.domain.repository.YoutubeUserRepository
+import me.edujtm.tuyo.data.repository.YoutubeUserRepository
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -22,7 +22,11 @@ class UserRepositoryTest {
     val playlistIds = Fake.primaryPlaylistsIds().first()
     val endpoint = mockk<UserEndpoint>()
     val cache = mockk<PrimaryPlaylistPreferences>()
-    val repo = YoutubeUserRepository(endpoint, cache, coroutineRule.testDispatchers)
+    val repo = YoutubeUserRepository(
+        endpoint,
+        cache,
+        coroutineRule.testDispatchers
+    )
 
     @Test
     fun `should cache primary playlist ids from user`() =

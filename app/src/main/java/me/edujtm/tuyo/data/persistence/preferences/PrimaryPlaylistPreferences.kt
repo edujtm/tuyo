@@ -1,7 +1,7 @@
 package me.edujtm.tuyo.data.persistence.preferences
 
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.PrimaryPlaylistsIds
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylistsIds
 
 interface PrimaryPlaylistPreferences {
     suspend fun savePrimaryPlaylistIds(playlistIds: PrimaryPlaylistsIds)

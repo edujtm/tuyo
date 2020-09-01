@@ -1,4 +1,4 @@
-package me.edujtm.tuyo.domain.repository
+package me.edujtm.tuyo.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -11,8 +11,8 @@ import me.edujtm.tuyo.data.model.PlaylistHeaderJson
 import me.edujtm.tuyo.data.persistence.PlaylistHeaderDao
 import me.edujtm.tuyo.domain.DispatcherProvider
 import me.edujtm.tuyo.domain.Mapper
-import me.edujtm.tuyo.domain.domainmodel.PagedData
 import me.edujtm.tuyo.domain.domainmodel.PlaylistHeader
+import me.edujtm.tuyo.domain.repository.PlaylistHeaderRepository
 import javax.inject.Inject
 
 class YoutubePlaylistHeaderRepository

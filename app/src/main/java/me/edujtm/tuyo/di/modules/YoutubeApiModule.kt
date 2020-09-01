@@ -1,7 +1,6 @@
 package me.edujtm.tuyo.di.modules
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -17,6 +16,9 @@ import me.edujtm.tuyo.data.endpoint.YoutubePlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.YoutubeUserEndpoint
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
 import me.edujtm.tuyo.data.persistence.preferences.UserPrimaryPlaylistPreferences
+import me.edujtm.tuyo.data.repository.YoutubePlaylistHeaderRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.data.repository.YoutubeUserRepository
 import me.edujtm.tuyo.di.qualifier.AppContext
 import me.edujtm.tuyo.di.qualifier.UserEmail
 import me.edujtm.tuyo.domain.repository.*

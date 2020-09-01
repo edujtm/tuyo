@@ -26,6 +26,7 @@ class HomeViewModel
     private val _playlistHeaders = MutableStateFlow<RequestState<List<PlaylistHeader>>>(RequestState.Loading)
     val playlistHeaders : StateFlow<RequestState<List<PlaylistHeader>>> = _playlistHeaders
 
+    /** Allows the UI to request for more pages on demand */
     fun requestPlaylistHeaders(token: String? = null) {
         launch {
             try {

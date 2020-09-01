@@ -3,10 +3,8 @@ package me.edujtm.tuyo.ui.playlistitems
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import me.edujtm.tuyo.data.model.*
 import me.edujtm.tuyo.domain.DispatcherProvider
-import me.edujtm.tuyo.domain.domainmodel.Playlist
-import me.edujtm.tuyo.domain.domainmodel.RequestState
+import me.edujtm.tuyo.domain.domainmodel.*
 import me.edujtm.tuyo.domain.repository.PlaylistRepository
 import me.edujtm.tuyo.domain.repository.UserRepository
 import javax.inject.Inject
@@ -19,13 +17,25 @@ class PlaylistViewModel
         val dispatchers: DispatcherProvider
     ) : ViewModel(), CoroutineScope {
 
-    private val job = Job()
+    private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = job + dispatchers.main
 
     /** Works as a memory cache for the values from the DB */
     private val _playlistItems = MutableStateFlow<RequestState<Playlist>>(RequestState.Loading)
     val playlistItems: StateFlow<RequestState<Playlist>> = _playlistItems
+
+    private val _selectedItems = MutableStateFlow(emptySet<String>())
+    val selectedItems : StateFlow<Set<String>> = _selectedItems
+
+    fun toggleSelectedItem(itemId: String) {
+        val items = _selectedItems.value
+        if (itemId in items) {
+            _selectedItems.value = items - itemId
+        } else {
+            _selectedItems.value = items + itemId
+        }
+    }
 
     fun refresh(selectedPlaylist: SelectedPlaylist) {
         launch {
@@ -35,7 +45,7 @@ class PlaylistViewModel
                 }
                 is SelectedPlaylist.Extra -> selectedPlaylist.playlistId
             }
-            playlistRepository.deletePlaylist(playlistId)
+            playlistRepository.refresh(playlistId)
         }
     }
 

@@ -1,7 +1,6 @@
 package me.edujtm.tuyo.integration
 
 import io.mockk.*
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -12,12 +11,12 @@ import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.InMemoryPlaylistItemDao
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
-import me.edujtm.tuyo.data.model.SelectedPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.SelectedPlaylist
 import me.edujtm.tuyo.data.persistence.preferences.PrimaryPlaylistPreferences
 import me.edujtm.tuyo.domain.domainmodel.RequestState
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
-import me.edujtm.tuyo.domain.repository.YoutubeUserRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.data.repository.YoutubeUserRepository
 import me.edujtm.tuyo.ui.playlistitems.PlaylistViewModel
 import org.junit.*
 import java.lang.RuntimeException
@@ -54,12 +53,17 @@ class PlaylistItemsTest {
     fun setUp() {
         playlistDb = InMemoryPlaylistItemDao()
         playlistDb.onStart()
-        val playlistRepo = YoutubePlaylistRepository(
-            playlistEndpoint,
-            playlistDb,
+        val playlistRepo =
+            YoutubePlaylistRepository(
+                playlistEndpoint,
+                playlistDb,
+                testCoroutineRule.testDispatchers
+            )
+        val userRepo = YoutubeUserRepository(
+            userEndpoint,
+            cache,
             testCoroutineRule.testDispatchers
         )
-        val userRepo = YoutubeUserRepository(userEndpoint, cache, testCoroutineRule.testDispatchers)
         viewModel = PlaylistViewModel(playlistRepo, userRepo, testCoroutineRule.testDispatchers)
     }
 
@@ -116,7 +120,8 @@ class PlaylistItemsTest {
             coEvery { userEndpoint.getPrimaryPlaylistsIds() } returns playlistsIds
 
             // WHEN: user specifies a primary playlist
-            val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)
+            val selectedPlaylist = SelectedPlaylist.Primary(
+                PrimaryPlaylist.LIKED_VIDEOS)
             val job = launch { viewModel.getPlaylist(selectedPlaylist) }
 
             // The primary playlist ids should be retrieved
@@ -196,7 +201,8 @@ class PlaylistItemsTest {
             // GIVEN: a network error happens
             coEvery { userEndpoint.getPrimaryPlaylistsIds() } throws RuntimeException("API error")
 
-            val selectedPlaylist = SelectedPlaylist.Primary(PrimaryPlaylist.LIKED_VIDEOS)
+            val selectedPlaylist = SelectedPlaylist.Primary(
+                PrimaryPlaylist.LIKED_VIDEOS)
             val uiJob = launch {
                 viewModel.getPlaylist(selectedPlaylist)
             }

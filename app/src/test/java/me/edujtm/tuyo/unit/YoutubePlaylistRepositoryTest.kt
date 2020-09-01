@@ -8,7 +8,7 @@ import me.edujtm.tuyo.Fake
 import me.edujtm.tuyo.data.endpoint.PlaylistEndpoint
 import me.edujtm.tuyo.data.persistence.PlaylistItemDao
 import me.edujtm.tuyo.domain.domainmodel.PagedData
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistRepository
 import org.junit.Test
 
 class YoutubePlaylistRepositoryTest {

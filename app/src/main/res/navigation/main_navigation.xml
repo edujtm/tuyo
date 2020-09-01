@@ -26,7 +26,7 @@
 
         <argument
             android:name="primaryPlaylist"
-            app:argType="me.edujtm.tuyo.data.model.PrimaryPlaylist"
+            app:argType="me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist"
             android:defaultValue="LIKED_VIDEOS"
             />
     </fragment>

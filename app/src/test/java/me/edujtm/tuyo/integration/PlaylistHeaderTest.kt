@@ -1,8 +1,6 @@
 package me.edujtm.tuyo.integration
 
 import io.mockk.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,8 +12,7 @@ import me.edujtm.tuyo.InMemoryPlaylistHeaderDao
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.data.endpoint.UserEndpoint
 import me.edujtm.tuyo.domain.domainmodel.RequestState
-import me.edujtm.tuyo.domain.repository.PlaylistHeaderRepository
-import me.edujtm.tuyo.domain.repository.YoutubePlaylistHeaderRepository
+import me.edujtm.tuyo.data.repository.YoutubePlaylistHeaderRepository
 import me.edujtm.tuyo.ui.home.HomeViewModel
 import org.junit.*
 
@@ -41,12 +38,13 @@ class PlaylistHeaderTest {
     fun setUp() {
         headerDb = InMemoryPlaylistHeaderDao()
         headerDb.onStart()
-        val repo = YoutubePlaylistHeaderRepository(
-            userEndpoint,
-            headerDb,
-            authManager,
-            coroutineRule.testDispatchers
-        )
+        val repo =
+            YoutubePlaylistHeaderRepository(
+                userEndpoint,
+                headerDb,
+                authManager,
+                coroutineRule.testDispatchers
+            )
         viewModel = HomeViewModel(repo, coroutineRule.testDispatchers)
     }
 

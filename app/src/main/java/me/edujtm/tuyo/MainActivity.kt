@@ -16,11 +16,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.edujtm.tuyo.auth.AuthManager
 import me.edujtm.tuyo.auth.GoogleAccount
 import me.edujtm.tuyo.common.*
-import me.edujtm.tuyo.data.model.PrimaryPlaylist
+import me.edujtm.tuyo.domain.domainmodel.PrimaryPlaylist
 import me.edujtm.tuyo.databinding.ActivityMainBinding
 import me.edujtm.tuyo.di.components.ActivityComponentProvider
 import me.edujtm.tuyo.di.components.MainActivityComponent
