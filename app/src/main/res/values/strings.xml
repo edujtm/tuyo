@@ -12,6 +12,8 @@
     <string name="google_play_services_not_available">Google Play Services not available or not supported</string>
     <string name="generic_error_message">The following error occurred: %1$s</string>
 
+    <string name="disclaimer">Developed with YouTube</string>
+
     <!-- Login Screen -->
     <string name="login_button">Login</string>
     <string name="login_title">Tuyo</string>

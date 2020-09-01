@@ -5,4 +5,7 @@
     <color name="colorAccent">#000000</color>
     <color name="black_overlay">#66000000</color>
     <color name="red_overlay">#33e52d27</color>
+
+    <color name="bg_action_mode">#222222</color>
+    <color name="status_bar_action_mode">#000000</color>
 </resources>

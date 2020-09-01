@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity(), ActivityComponentProvider {
         val mainLayout = ui.mainLayout
         setSupportActionBar(mainLayout.toolbar)
 
+
         mainLayout.fab.setOnClickListener {
             val email = intent?.getStringExtra(USER_EMAIL) ?: "No Email"
             Snackbar.make(mainLayout.root, email, Snackbar.LENGTH_SHORT).show()

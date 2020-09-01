@@ -1,25 +1,21 @@
 package me.edujtm.tuyo.ui.playlistitems
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
@@ -63,11 +59,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items), ActionMode.
     private var playlistAdapter: PlaylistAdapter? = null
     private val ui: FragmentPlaylistItemsBinding by viewBinding(FragmentPlaylistItemsBinding::bind)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -109,13 +100,6 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items), ActionMode.
             playlistItemsViewModel.refresh(selectedPlaylist)
         }
     }
-
-    /*
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.playlist_item_selected_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-     */
 
     private fun listenForMoreItemRequests(paginator: FlowPaginator) {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -243,6 +227,11 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items), ActionMode.
 
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         activity?.menuInflater?.inflate(R.menu.playlist_item_selected_menu, menu)
+        activity?.window?.let {
+            it.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            it.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            it.statusBarColor = ContextCompat.getColor(requireActivity(), R.color.status_bar_action_mode)
+        }
         return true
     }
 
@@ -250,6 +239,11 @@ class PlaylistFragment : Fragment(R.layout.fragment_playlist_items), ActionMode.
 
     override fun onDestroyActionMode(mode: ActionMode?) {
         actionMode = null
+        activity?.window?.let {
+            it.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            it.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            it.statusBarColor = ContextCompat.getColor(requireActivity(), R.color.colorPrimaryDark)
+        }
         playlistItemsViewModel.setInSelectMode(false)
     }
 }
